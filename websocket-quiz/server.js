@@ -1,67 +1,10 @@
 const WebSocket = require('ws');
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
 
-const wsPort = 8081;
-const httpPort = 8080;
-
-const wss = new WebSocket.Server({ port: wsPort });
-
-const server = http.createServer((req, res) => {
-    if (req.method === 'POST' && req.url === '/reset') {
-        resetGame();
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Game reset');
-    } else {
-        let filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
-        let extname = String(path.extname(filePath)).toLowerCase();
-        let mimeTypes = {
-            '.html': 'text/html',
-            '.js': 'application/javascript',
-            '.css': 'text/css',
-            '.json': 'application/json',
-            '.png': 'image/png',
-            '.jpg': 'image/jpg',
-            '.gif': 'image/gif',
-            '.wav': 'audio/wav',
-            '.mp4': 'video/mp4',
-            '.woff': 'application/font-woff',
-            '.ttf': 'application/font-ttf',
-            '.eot': 'application/vnd.ms-fontobject',
-            '.otf': 'application/font-otf',
-            '.svg': 'application/image/svg+xml'
-        };
-
-        let contentType = mimeTypes[extname] || 'application/octet-stream';
-
-        fs.readFile(filePath, (error, content) => {
-            if (error) {
-                if (error.code === 'ENOENT') {
-                    fs.readFile('./404.html', (error, content) => {
-                        res.writeHead(404, { 'Content-Type': 'text/html' });
-                        res.end(content, 'utf-8');
-                    });
-                } else {
-                    res.writeHead(500);
-                    res.end('Sorry, check with the site admin for error: ' + error.code + ' ..\n');
-                    res.end();
-                }
-            } else {
-                res.writeHead(200, { 'Content-Type': contentType });
-                res.end(content, 'utf-8');
-            }
-        });
-    }
-});
-
-server.listen(httpPort, () => {
-    console.log(`HTTP server is listening on port ${httpPort}`);
-});
+const wss = new WebSocket.Server({ port: 8081 });
 
 let clients = [];
-let connectedUsers = new Map();
-let userHP = new Map();
+let connectedUsers = new Map(); // ユーザーとスコアを管理するMap
+let userHP = new Map(); // ユーザーとHPを管理するMap
 let readyForNextQuestion = new Set();
 const questions = [
     { question: "What's the capital of France?", answer: "Paris" },
@@ -74,10 +17,10 @@ const questions = [
     { question: "What's the capital of Italy?", answer: "Rome" },
     { question: "What's 6 x 6?", answer: "36" }
 ];
-const maxHP = 5;
+const maxHP = 5; // 最大HP
 let quizActive = false;
 let currentQuestionIndex = 0;
-let askedQuestions = new Set();
+let askedQuestions = new Set(); // 出題済みの問題をトラッキング
 
 wss.on('connection', ws => {
     clients.push(ws);
@@ -88,24 +31,25 @@ wss.on('connection', ws => {
         console.log('Received message:', parsedMessage);
 
         if (parsedMessage.type === 'register') {
-            let user = parsedMessage.user;
-            let tabId = parsedMessage.tabId;
-
-            if (!connectedUsers.has(user)) {
-                connectedUsers.set(user, {});
+            // ユーザーが既に登録されている場合はスコアとHPをリセット
+            if (connectedUsers.has(parsedMessage.user)) {
+                connectedUsers.delete(parsedMessage.user);
+                userHP.delete(parsedMessage.user);
             }
 
-            connectedUsers.get(user)[tabId] = ws;
-            userHP.set(user, maxHP);
-            console.log(`User registered: ${user} (tab: ${tabId})`);
-            console.log('Connected users:', Array.from(connectedUsers.entries()));
+            connectedUsers.set(parsedMessage.user, 0); // 新しいユーザーをスコア0で登録
+            userHP.set(parsedMessage.user, maxHP); // 新しいユーザーをHP5で登録
+            console.log(`User registered: ${parsedMessage.user}`);
+            console.log('Connected users:', Array.from(connectedUsers.keys()));
 
-            if (Array.from(connectedUsers.values()).flatMap(userTabs => Object.values(userTabs)).length >= 2 && !quizActive) {
+            if (connectedUsers.size >= 2 && !quizActive) {
                 console.log('Notifying clients to start quiz');
                 quizActive = true;
+                const initialScores = Array.from(connectedUsers.entries());
+                const initialHP = Array.from(userHP.entries());
                 clients.forEach(client => {
                     if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({ type: 'readyToStart', scores: Array.from(connectedUsers.entries()), hp: Array.from(userHP.entries()) }));
+                        client.send(JSON.stringify({ type: 'readyToStart', initialScores, initialHP }));
                     }
                 });
 
@@ -125,9 +69,10 @@ wss.on('connection', ws => {
             if (parsedMessage.answer.toLowerCase() === questions[currentQuestionIndex].answer.toLowerCase()) {
                 result.correct = true;
                 let currentScore = connectedUsers.get(parsedMessage.user);
-                connectedUsers.set(parsedMessage.user, currentScore + 1);
+                connectedUsers.set(parsedMessage.user, currentScore + 1); // スコアを更新
                 console.log(`${parsedMessage.user} scored! Current score: ${currentScore + 1}`);
 
+                // 相手のHPを減らす
                 for (let [user, hp] of userHP.entries()) {
                     if (user !== parsedMessage.user) {
                         userHP.set(user, hp - 1);
@@ -135,23 +80,26 @@ wss.on('connection', ws => {
                         if (hp - 1 <= 0) {
                             quizActive = false;
                             console.log(`${parsedMessage.user} has won the game!`);
-                            result.winner = true;
+                            result.winner = true; // 勝者を示すフラグを追加
 
+                            // 勝者を通知し、ゲームを終了
                             clients.forEach(client => {
                                 if (client.readyState === WebSocket.OPEN) {
                                     client.send(JSON.stringify({ type: 'endGame', winner: `${parsedMessage.user} WIN!!`, hp: Array.from(userHP.entries()) }));
                                 }
                             });
 
+                            // ゲーム終了後にリセット
                             resetGame();
                             break;
                         }
                     }
                 }
 
-                result.scores = Array.from(connectedUsers.entries());
-                result.hp = Array.from(userHP.entries());
+                result.scores = Array.from(connectedUsers.entries()); // スコア更新後に送信
+                result.hp = Array.from(userHP.entries()); // HP更新後に送信
 
+                // スコア更新をクライアントに送信
                 clients.forEach(client => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({ type: 'updateScores', scores: result.scores, hp: result.hp }));
@@ -165,6 +113,7 @@ wss.on('connection', ws => {
                 }
             });
 
+            // 問題が終了した場合、次の問題を始めるボタンを表示
             if (result.correct && quizActive) {
                 clients.forEach(client => {
                     if (client.readyState === WebSocket.OPEN) {
@@ -178,12 +127,12 @@ wss.on('connection', ws => {
                 readyForNextQuestion.clear();
                 clients.forEach(client => {
                     if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({ type: 'startNextQuiz' }));
+                        client.send(JSON.stringify({ type: 'startNextQuiz' })); // 次のクイズ開始のカウントダウンを指示
                     }
                 });
                 setTimeout(() => {
                     sendQuestion();
-                }, 5000);
+                }, 5000); // 5秒後に次の問題を開始
             }
             clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
@@ -194,38 +143,13 @@ wss.on('connection', ws => {
     });
 
     ws.on('close', () => {
-        let disconnectedUser;
-        let disconnectedTabId;
-
-        for (let [user, tabs] of connectedUsers.entries()) {
-            for (let [tabId, client] of Object.entries(tabs)) {
-                if (client === ws) {
-                    disconnectedUser = user;
-                    disconnectedTabId = tabId;
-                    delete connectedUsers.get(user)[tabId];
-                    if (Object.keys(connectedUsers.get(user)).length === 0) {
-                        connectedUsers.delete(user);
-                        userHP.delete(user);
-                    }
-                    break;
-                }
-            }
-        }
-        readyForNextQuestion.delete(disconnectedUser);
         clients = clients.filter(client => client !== ws);
-        console.log(`Client disconnected: ${disconnectedUser} (tab: ${disconnectedTabId})`);
-
-        if (disconnectedUser && !quizActive) {
-            clients.forEach(client => {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ type: 'userDisconnected', user: disconnectedUser }));
-                }
-            });
-        }
+        console.log('Client disconnected');
     });
 });
 
 function sendQuestion() {
+    // 新しい質問を見つける
     let availableQuestions = questions.filter((_, index) => !askedQuestions.has(index));
     if (availableQuestions.length === 0) {
         console.log('All questions have been asked.');
@@ -245,13 +169,13 @@ function sendQuestion() {
 }
 
 function resetGame() {
+    // ゲームのリセット、ユーザーのスコアもクリアする
     connectedUsers.clear();
     userHP.clear();
     readyForNextQuestion.clear();
-    askedQuestions.clear();
+    askedQuestions.clear(); // 出題済みの問題リストをクリア
     currentQuestionIndex = 0;
     quizActive = false;
 }
 
-console.log(`WebSocket server is running on ws://localhost:${wsPort}`);
-console.log(`HTTP server is listening on port ${httpPort}`);
+console.log('WebSocket server is running on ws://localhost:8081');
