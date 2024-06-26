@@ -39,10 +39,6 @@
             display: none;
         }
 
-        #scores {
-            display: none;
-        }
-
         #next-question {
             display: none;
         }
@@ -78,8 +74,6 @@
         <input type="text" id="answer" placeholder="Type your answer here">
         <button onclick="sendAnswer()">Submit</button>
         <div id="responses"></div>
-        <div id="scores"></div>
-        <div id="hp-bars"></div>
     </div>
 
     <div id="next-question">
@@ -93,16 +87,26 @@
         <button onclick="restartGame()">Restart Game</button>
     </div>
 
+    <div id="status-section">
+        <div id="scores"></div>
+        <div id="hp-bars"></div>
+    </div>
+
     <script>
         let ws;
         let user;
+        let tabId = generateTabId();
+
+        function generateTabId() {
+            return Math.random().toString(36).substr(2, 9);
+        }
 
         function connectWebSocket() {
             ws = new WebSocket('ws://localhost:8081');
 
             ws.onopen = () => {
                 console.log('Connected to WebSocket server');
-                ws.send(JSON.stringify({ type: 'register', user: user }));
+                ws.send(JSON.stringify({ type: 'register', user: user, tabId: tabId }));
             };
 
             ws.onmessage = (event) => {
@@ -112,6 +116,9 @@
                 if (message.type === 'readyToStart') {
                     document.getElementById('waiting-message').style.display = 'none';
                     document.getElementById('ready-message').style.display = 'block';
+                    document.getElementById('status-section').style.display = 'block';
+                    updateScores(message.scores);
+                    updateHP(message.hp);
                     startCountdown();
                 }
                 if (message.type === 'startQuiz') {
@@ -119,15 +126,15 @@
                     document.getElementById('quiz-section').style.display = 'block';
                     document.getElementById('next-question').style.display = 'none';
                     document.getElementById('quiz').textContent = message.question;
-                    document.getElementById('responses').innerHTML = ''; // 回答ログをリセット
-                    enableInput(); // 入力を有効化
+                    document.getElementById('responses').innerHTML = '';
+                    enableInput();
                 }
                 if (message.type === 'answer') {
                     const responseElement = document.createElement('p');
                     responseElement.innerHTML = `<strong>${message.user}:</strong> ${message.answer}`;
                     if (message.correct) {
                         responseElement.classList.add('correct');
-                        disableInput(); // 正解したら入力を無効化
+                        disableInput();
                         document.getElementById('next-question').style.display = 'block';
                     } else {
                         responseElement.classList.add('incorrect');
@@ -135,9 +142,7 @@
                     document.getElementById('responses').appendChild(responseElement);
                 }
                 if (message.type === 'updateScores') {
-                    // スコア表示を更新
                     updateScores(message.scores);
-                    // HP表示を更新
                     updateHP(message.hp);
                 }
                 if (message.type === 'endGame') {
@@ -146,8 +151,8 @@
                     document.getElementById('next-question').style.display = 'none';
                     document.getElementById('end-game').style.display = 'block';
                     document.getElementById('winner-message').textContent = `${message.winner} has won the game!`;
-                    updateScores(message.scores); // 最終スコアを更新
-                    updateHP(message.hp); // 最終HPを更新
+                    updateScores(message.scores);
+                    updateHP(message.hp);
                 }
                 if (message.type === 'showNextButton') {
                     document.getElementById('next-question').style.display = 'block';
@@ -156,7 +161,15 @@
                     document.getElementById('waiting-next').textContent = `Waiting for ${message.usersReady.join(", ")} to proceed...`;
                 }
                 if (message.type === 'startNextQuiz') {
-                    startCountdownForNext(); // 次の問題のカウントダウンを開始
+                    document.getElementById('next-question').style.display = 'none';
+                    startCountdownForNext();
+                }
+                if (message.type === 'userDisconnected') {
+                    alert(`${message.user} has disconnected. Please wait for reconnection.`);
+                    document.getElementById('next-question').style.display = 'none';
+                    document.getElementById('quiz-section').style.display = 'none';
+                    document.getElementById('ready-message').style.display = 'none';
+                    document.getElementById('user-section').style.display = 'block';
                 }
             };
 
@@ -189,21 +202,28 @@
         }
 
         function startQuiz() {
-            user = document.getElementById('username').value;
-            if (user) {
-                console.log(`Starting quiz for user: ${user}`);
-                document.getElementById('user-section').style.display = 'none';
-                document.getElementById('waiting-message').style.display = 'block';
-                connectWebSocket();
-            } else {
-                alert('Please enter a username');
-            }
+            fetch('http://localhost:8080/reset', { method: 'POST' })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                    user = document.getElementById('username').value;
+                    if (user) {
+                        console.log(`Starting quiz for user: ${user}`);
+                        document.getElementById('user-section').style.display = 'none';
+                        document.getElementById('waiting-message').style.display = 'block';
+                        document.getElementById('status-section').style.display = 'block';
+                        connectWebSocket();
+                    } else {
+                        alert('Please enter a username');
+                    }
+                })
+                .catch(error => console.error('Error resetting game:', error));
         }
 
         function startCountdown() {
             let countdown = 5;
             const countdownElement = document.getElementById('countdown');
-            countdownElement.textContent = countdown; // 初期値の設定
+            countdownElement.textContent = countdown;
             const interval = setInterval(() => {
                 countdown--;
                 countdownElement.textContent = countdown;
@@ -216,7 +236,7 @@
         function startCountdownForNext() {
             document.getElementById('quiz-section').style.display = 'none';
             document.getElementById('ready-message').style.display = 'block';
-            startCountdown(); // カウントダウンを開始
+            startCountdown();
             setTimeout(() => {
                 document.getElementById('ready-message').style.display = 'none';
                 document.getElementById('quiz-section').style.display = 'block';
@@ -256,6 +276,7 @@
             document.getElementById('responses').innerHTML = '';
             document.getElementById('scores').innerHTML = '';
             document.getElementById('hp-bars').innerHTML = '';
+            document.getElementById('status-section').style.display = 'none';
             document.getElementById('user-section').style.display = 'block';
             user = '';
             ws.close();
