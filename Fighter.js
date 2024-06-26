@@ -9,20 +9,82 @@ export class Fighter {
         this.frames = new Map();
         this.position = { x, y };
         this.direction = direction;
-        this.velocity = 150 * direction;
+        // this.velocity = 150 * direction;
+        this.velocity = 0;
         // this.velocity = velocity;
         this.animationFrame = 0;
         this.animationTimer = 0;
         this.animations = {};
         // this.state = 'walkForwords';
-        this.state = this.changeState();
+        // this.state = this.changeState();
+        // this.currentState = this.changeState();
+
+        this.states = {
+            [FighterState.WALK_FORWARD]: {
+                init: this.handleWalkForwardInit.bind(this),
+                update: this.handleWalkForwardState.bind(this),
+            },
+            [FighterState.WALK_BACKWARD]: {
+                init: this.handleWalkBackwardsInit.bind(this),
+                update: this.handleWalkBackwardsState.bind(this),
+            },
+        }
+
+        this.changeState(FighterState.WALK_FORWARD);
+        // this.changeState(FighterState.WALK_BACKWARD);
     }
 
-    changeState = () => this.velocity * this.direction < 0 ? 'walkBackwards' : 'walkForwards';
+
+    changeState(newState) {
+        // changeState = () => this.velocity * this.direction < 0 ? 'walkBackwards' : 'walkForwards';
+        // changeState = () => this.velocity * this.direction < 0 ? FighterState.WALK_BACKWARD : FighterState.WALK_FORWARD;
+
+        this.currentState = newState;
+        this.animationFrame = 0;
+
+        this.states[this.currentState].init();
+    }
+
+
+    // Backwardsは複数です...!
+    handleWalkForwardInit() {
+        this.velocity = -150 * this.direction;
+    }
+
+    handleWalkForwardState() {
+
+    }
+
+    handleWalkBackwardsInit() {
+        this.velocity = 150 * this.direction;
+
+    }
+
+    handleWalkBackwardsState() {
+
+    }
+
+    updateStageContraints(context) {
+        const WIDTH = 32;
+
+        if (this.position.x > context.canvas.width - WIDTH) {
+            // this.currentState = this.changeState();
+            // this.state = 'walkBackwards';
+            this.position.x = context.canvas.width - WIDTH;
+        }
+
+        if (this.position.x < WIDTH) {
+            // this.currentState = this.changeState();
+            // this.state = 'walkForwards';
+            this.position.x = WIDTH;
+        }
+    }
+
+
 
     // 要確認
     update(secondsPassed, context) {
-        const [[, , width]] = this.frames.get(this.animations[this.state][this.animationFrame]);
+        // const [[, , width]] = this.frames.get(this.animations[this.currentState][this.animationFrame]);
 
         if (timeRanges.previous > this.animationTimer + 60) {
             this.animationTimer = time.previous;
@@ -32,21 +94,12 @@ export class Fighter {
 
         this.position.x += this.velocity * secondsPassed;
 
-        if (this.position.x > context.canvas.width - width / 2) {
-            // this.velocity = -150;
-            this.state = this.changeState();
-            this.state = 'walkBackwards';
-        }
-
-        if (this.position.x < width / 2) {
-            // this.velocity = 150;
-            this.state = this.changeState();
-            this.state = 'walkForwards';
-        }
-
         // if (this.position.x > context.canvas.width - width || this.position.x < 0) {
         //     this.velocity = -this.velocity;
         // }
+
+        this.states[this.currentState].update(time, context);
+        this.updateStageContraints(context);
     }
 
     drawDebug(context) {
@@ -65,7 +118,7 @@ export class Fighter {
         const [
             [x, y, width, height],
             [originX, originY],
-        ] = this.frames.get(this.animations[this.state][this.animationFrame]);
+        ] = this.frames.get(this.animations[this.currentState][this.animationFrame]);
 
         context.scale(this.direction, 1);
         context.drawImage(
