@@ -20,6 +20,7 @@ export class Fighter {
 
     changeState = () => this.velocity * this.direction < 0 ? 'walkBackwards' : 'walkForwards';
 
+    // 要確認
     update(secondsPassed, context) {
         const [[, , width]] = this.frames.get(this.animations[this.state][this.animationFrame]);
 
