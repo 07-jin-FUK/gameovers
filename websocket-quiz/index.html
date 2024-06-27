@@ -85,11 +85,22 @@
         }
 
         #main-content {
-            padding-top: 100px;
+            position: relative;
+            top: 100px;
+            /* 上部の位置を調整してHPバーと被らないように */
             width: 100%;
             max-width: 800px;
             text-align: center;
+            background-color: white;
+            /* 背景色を白に */
+            border-radius: 10px;
+            /* 角を丸くする */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* ボックスシャドウを追加して浮かび上がるように */
+            padding: 20px;
+            /* パディングを追加して余白を作る */
         }
+
 
         .ready {
             display: none;
