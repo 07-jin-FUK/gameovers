@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>WebSocket Quiz</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link href='https://fonts.googleapis.com/css?family=Press+Start 2P' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
     <style>
         body {
             margin: 0;
@@ -27,6 +27,7 @@
             width: 100%;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 10px;
             background-color: rgba(0, 0, 0, 0.7);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -35,12 +36,10 @@
 
         #my-hp,
         #opponent-hp {
-            width: 40%;
-            /* 10%余白を追加して45%から35%に変更 */
-            height: 25px;
+            width: 35%;
+            height: 27px;
             position: relative;
-            margin: 0 10%;
-            /* 両端に10%の余白を追加 */
+            margin: 0 8%;
         }
 
         .hp-bar {
@@ -50,17 +49,13 @@
             color: white;
             overflow: hidden;
             background-color: rgba(255, 255, 255, 0.2);
-            /* 背景色を追加 */
         }
 
         .hp-bar-inner {
             height: 100%;
-            background: linear-gradient(to bottom, #00ff00, #006400);
-            /* グラデーション */
+            background: linear-gradient(to right, #00ff00 0%, #ffff00 65%, #ff0000 100%);
             border: 1px solid #004d00;
-            /* 枠線 */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            /* ボックスシャドウ */
             transition: width 2s ease-in-out, background-color 1s;
             z-index: 2;
         }
@@ -71,6 +66,13 @@
 
         .hp-bar.opponent-hp-bar {
             left: 0;
+        }
+
+        #countdown {
+            font-family: "Press Start 2P", Arial, sans-serif;
+            font-size: 50px;
+            color: purple;
+            text-shadow: 2px 2px 5px black;
         }
 
         #quiz-section,
@@ -85,35 +87,13 @@
         #main-content {
             position: relative;
             top: 100px;
-            /* 上部の位置を調整してHPバーと被らないように */
             width: 100%;
             max-width: 800px;
             text-align: center;
             background-color: white;
-            /* 背景色を白に */
             border-radius: 10px;
-            /* 角を丸くする */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            /* ボックスシャドウを追加して浮かび上がるように */
             padding: 20px;
-            /* パディングを追加して余白を作る */
-        }
-
-        #countdown-container {
-            position: absolute;
-            top: 7px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70px;
-            height: 35px;
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
         }
 
         .ready {
@@ -253,6 +233,20 @@
         input[disabled] {
             background-color: lightgray;
         }
+
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* background-color: rgba(0, 0, 0, 0.7); */
+            border-radius: 10px;
+            padding: 5px 20px;
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1003;
+        }
     </style>
 </head>
 
@@ -261,8 +255,8 @@
         <div id="my-hp" class="hp-bar my-hp-bar">
             <div class="hp-bar-inner"></div>
         </div>
-        <div id="countdown-container">
-            <p id="countdown">5</p>
+        <div class="countdown-container">
+            <div id="countdown"></div>
         </div>
         <div id="opponent-hp" class="hp-bar opponent-hp-bar">
             <div class="hp-bar-inner"></div>
@@ -476,9 +470,9 @@
 
             hp.forEach(([username, hpValue]) => {
                 const percentage = hpValue * 20;
-                const color = percentage > 65 ? 'linear-gradient(to bottom, #00ff00, #006400)'
-                    : percentage > 30 ? 'linear-gradient(to bottom, #ffff00, #999900)'
-                        : 'linear-gradient(to bottom, #ff0000, #990000)';
+                const color = percentage > 65 ? 'linear-gradient(to right, #00ff00, #ffff00 65%, #ff0000 100%)'
+                    : percentage > 30 ? 'linear-gradient(to right, #ffff00, #999900 65%, #ff0000 100%)'
+                        : 'linear-gradient(to right, #ff0000, #990000)';
                 if (username === user) {
                     myHpBarInner.style.width = `${percentage}%`;
                     myHpBarInner.style.background = color;
@@ -488,7 +482,6 @@
                 }
             });
         }
-
 
         function showReadyImage() {
             const readyElement = document.getElementById('ready');
