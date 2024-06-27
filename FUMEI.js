@@ -1,3 +1,5 @@
+//// Part5 4'00"あたりから書き始めてるけど、結局どこで使われているか分からない...!
+
 // まずジャンプの許可をする
 if (this.control.isUp) {
     this.player.velocity.y = -speed;
