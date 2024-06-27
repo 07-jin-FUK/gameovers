@@ -23,10 +23,10 @@
 
         #header {
             position: fixed;
-            top: 0;
+            right: 0;
             width: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             padding: 10px;
             background-color: rgba(0, 0, 0, 0.7);
@@ -238,7 +238,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* background-color: rgba(0, 0, 0, 0.7); */
             border-radius: 10px;
             padding: 5px 20px;
             position: fixed;
@@ -247,75 +246,110 @@
             transform: translateX(-50%);
             z-index: 1003;
         }
+
+        #introGif {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            object-fit: cover;
+        }
+
+        #content-container {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
     </style>
 </head>
 
 <body>
-    <div id="header">
-        <div id="my-hp" class="hp-bar my-hp-bar">
-            <div class="hp-bar-inner"></div>
-        </div>
-        <div class="countdown-container">
-            <div id="countdown"></div>
-        </div>
-        <div id="opponent-hp" class="hp-bar opponent-hp-bar">
-            <div class="hp-bar-inner"></div>
-        </div>
-    </div>
 
-    <div id="main-content">
-        <h1>Fight!</h1>
-
-        <div id="user-section">
-            <input type="text" id="username" placeholder="Enter your username">
-            <button onclick="startQuiz()">試合開始</button>
+    <img id="introGif" src="./node_modules/Img/start.gif" alt="Intro GIF">
+    <div id="content-container">
+        <div id="header">
+            <div id="my-hp" class="hp-bar my-hp-bar">
+                <div class="hp-bar-inner"></div>
+            </div>
+            <div class="countdown-container">
+                <div id="countdown"></div>
+            </div>
+            <div id="opponent-hp" class="hp-bar opponent-hp-bar">
+                <div class="hp-bar-inner"></div>
+            </div>
         </div>
 
-        <div id="waiting-message">
-            <p>対戦相手を募集しています...</p>
-        </div>
 
-        <div id="ready-message">
-            <p>問題を開始します...</p>
-            <p id="countdown"></p>
-        </div>
 
-        <div id="quiz-section">
-            <div id="quiz"></div>
-            <input type="text" id="answer" placeholder="Type your answer here">
-            <button onclick="sendAnswer()">ATTACK!</button>
-            <div id="responses"></div>
-        </div>
+        <div id="main-content">
+            <h1>Fight!</h1>
 
-        <div id="next-question">
-            <p>次の問題へ進むボタンを押してください</p>
-            <button onclick="readyForNextQuestion()">次の問題へ進む</button>
-            <p id="waiting-next"></p>
-        </div>
+            <div id="user-section">
+                <input type="text" id="username" placeholder="Enter your username">
+                <button onclick="startQuiz()">試合開始</button>
+            </div>
 
-        <div id="end-game">
-            <p id="winner-message"></p>
-            <button onclick="restartGame()">Restart Game</button>
-        </div>
+            <div id="waiting-message">
+                <p>対戦相手を募集しています...</p>
+            </div>
 
-        <div id="cutin-background" class="cutin-background"></div>
+            <div id="ready-message">
+                <p>問題を開始します...</p>
+                <p id="countdown"></p>
+            </div>
 
-        <div id="ready" class="ready">
-            <img src="./node_modules/Img/here.jpg" alt="Ready Image">
-        </div>
+            <div id="quiz-section">
+                <div id="quiz"></div>
+                <input type="text" id="answer" placeholder="Type your answer here">
+                <button onclick="sendAnswer()">ATTACK!</button>
+                <div id="responses"></div>
+            </div>
 
-        <div id="attack" class="attack">
-            <p>YOUR ATTACK</p>
-            <img src="./node_modules/Img/ryoryo.png" alt="Attack Image">
-        </div>
+            <div id="next-question">
+                <p>次の問題へ進むボタンを押してください</p>
+                <button onclick="readyForNextQuestion()">次の問題へ進む</button>
+                <p id="waiting-next"></p>
+            </div>
 
-        <div id="damage" class="damage">
-            <p>YOUR DAMAGE</p>
-            <img src="./node_modules/Img/ken2.png" alt="Damage Image">
+            <div id="end-game">
+                <p id="winner-message"></p>
+                <button onclick="restartGame()">Restart Game</button>
+            </div>
+
+            <div id="cutin-background" class="cutin-background"></div>
+
+            <div id="ready" class="ready">
+                <img src="./node_modules/Img/here.jpg" alt="Ready Image">
+            </div>
+
+            <div id="attack" class="attack">
+                <p>YOUR ATTACK</p>
+                <img src="./node_modules/Img/ryoryo.png" alt="Attack Image">
+            </div>
+
+            <div id="damage" class="damage">
+                <p>YOUR DAMAGE</p>
+                <img src="./node_modules/Img/ken2.png" alt="Damage Image">
+            </div>
         </div>
     </div>
 
     <script>
+        window.onload = function () {
+            const introGif = document.getElementById('introGif');
+            const contentContainer = document.getElementById('content-container');
+
+            setTimeout(() => {
+                introGif.style.display = 'none';
+                contentContainer.style.display = 'block';
+                setTimeout(() => {
+                    contentContainer.style.opacity = 1;
+                }, 100); // 適切な遅延を設定
+            }, 900); // 0.4秒後に画面を切り替える
+        };
+
         let ws;
         let user;
         let userHP = new Map();
