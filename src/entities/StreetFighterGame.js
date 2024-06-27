@@ -3,13 +3,13 @@ import { Ryu } from './entities/fighters/Ryu.js';
 import { Stage } from './entities/stage.js';
 import { FpsCounter } from './entities/FpsCounter.js';
 import { STAGE_FLOOR } from './constants/stage.js';
-import { FighterDirection, FighterState } from './contants/fighters.js';
+import { FighterDirection } from './contants/fighters.js';
 
 export class StreetFighterGame {
     constructor() {
         this.context = this.getContext();
         this.fighters = [
-            new Ken(104, STAGE_FLOOR, FighterDirection.LEFT),
+            new Ryu(104, STAGE_FLOOR, FighterDirection.LEFT),
             new Ken(280, STAGE_FLOOR, FighterDirection.RIGHT),
         ];
 
@@ -35,8 +35,8 @@ export class StreetFighterGame {
     }
 
     update() {
-        for (const entity of entities) {
-            entity.update(frameTime, context);
+        for (const entity of this.entities) {
+            entity.update(this.frameTime, this.context);
         }
     }
 
@@ -48,10 +48,10 @@ export class StreetFighterGame {
 
 
     frame(time) {
-        window.requestAnimationFrame(frame);
+        window.requestAnimationFrame(this.frame.bind(this));
 
-        frameTime = {
-            secondsPassed: (time - previousTime) / 1000,
+        this.frameTime = {
+            secondsPassed: (time - this.frameTime.previous) / 1000,
             previous: time,
         }
 
@@ -59,7 +59,7 @@ export class StreetFighterGame {
         this.draw();
     }
 
-    handleFormSubmit(event, fighters) {
+    handleFormSubmit(event) {
         event.preventDefault();
 
         const selectedCheckboxes = Array
@@ -77,8 +77,8 @@ export class StreetFighterGame {
 
     start() {
         // this.document.addEventListener('submit', (event) => handleFormSubmit(event, fighters));
-        this.document.addEventListener('submit', this.handleFormSubmit.bind(this));
+        document.addEventListener('submit', this.handleFormSubmit.bind(this));
 
-        window.requestAnimationFrame(frame);
+        window.requestAnimationFrame(this.frame.bind(this));
     }
 }
