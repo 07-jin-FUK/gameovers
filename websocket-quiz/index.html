@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>WebSocket Quiz</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link href='https://fonts.googleapis.com/css?family=Press+Start 2P' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
     <style>
         body {
             margin: 0;
@@ -16,6 +16,9 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            background-image: url('./node_modules/Img/gardo.gif');
+            background-attachment: fixed;
+            background-size: cover;
         }
 
         #header {
@@ -25,23 +28,49 @@
             display: flex;
             justify-content: space-between;
             padding: 10px;
-            background-color: #f0f0f0;
+            background-color: rgba(0, 0, 0, 0.7);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1002;
         }
 
         #my-hp,
         #opponent-hp {
-            width: 55%;
-            margin-right: 10%;
-            margin-left: 10%;
+            width: 35%;
+            /* 10%余白を追加して45%から35%に変更 */
+            height: 20px;
+            position: relative;
+            margin: 0 10%;
+            /* 両端に10%の余白を追加 */
         }
 
         .hp-bar {
-            height: 20px;
-            background-color: green;
+            position: absolute;
+            height: 100%;
             text-align: center;
             color: white;
-            transition: width 1s;
+            overflow: hidden;
+        }
+
+        .hp-bar-inner {
+            height: 100%;
+            background: linear-gradient(to bottom, #00ff00, #006400);
+            /* グラデーション */
+            border: 1px solid #004d00;
+            /* 枠線 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            /* ボックスシャドウ */
+            transition: width 2s ease-in-out, background-color 1s;
+            z-index: 2;
+        }
+
+
+
+        .hp-bar.my-hp-bar {
+            right: 0;
+        }
+
+        .hp-bar.opponent-hp-bar {
+            left: 0;
         }
 
         #quiz-section,
@@ -55,7 +84,6 @@
 
         #main-content {
             padding-top: 100px;
-            /* ヘッダーの高さと余白分だけ下げる */
             width: 100%;
             max-width: 800px;
             text-align: center;
@@ -65,7 +93,6 @@
             display: none;
             position: fixed;
             top: 55%;
-            /* 位置を少し下げる */
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 1000;
@@ -84,29 +111,29 @@
         .attack,
         .damage {
             position: fixed;
-            top: 50%;
+            top: 53%;
             transform: translateY(-50%);
-            font-size: 2em;
+            font-size: 3em;
             font-weight: bold;
-            color: white;
+            color: rgb(252, 174, 174);
             text-shadow: 2px 2px 5px black;
             animation-duration: 4s;
             animation-timing-function: ease-in-out;
-            z-index: 1000;
+            z-index: 1001;
         }
 
         .attack img,
         .damage img {
-            width: 600px;
+            width: 800px;
             height: auto;
         }
 
         .attack {
-            left: -600px;
+            left: -800px;
         }
 
         .damage {
-            right: -600px;
+            right: -800px;
         }
 
         .attack.animate {
@@ -119,7 +146,7 @@
 
         @keyframes attackAnimation {
             0% {
-                left: -600px;
+                left: -800px;
             }
 
             50% {
@@ -140,7 +167,7 @@
 
         @keyframes damageAnimation {
             0% {
-                right: -600px;
+                right: -800px;
             }
 
             50% {
@@ -157,6 +184,30 @@
                 right: 100%;
                 transform: translateY(-50%);
             }
+        }
+
+        .cutin-background {
+            display: none;
+            position: fixed;
+            top: 12%;
+            left: 0;
+            width: 100%;
+            height: 80%;
+            background-size: cover;
+            background-position: center;
+            z-index: 1000;
+        }
+
+        .cutin-background.show {
+            display: block;
+        }
+
+        .attack-background {
+            background-image: url('./node_modules/Img/ao.gif');
+        }
+
+        .damage-background {
+            background-image: url('./node_modules/Img/aka.gif');
         }
 
         .correct {
@@ -180,18 +231,18 @@
 
 <body>
     <div id="header">
-        <div id="my-hp">
-            <h3>Your HP</h3>
-            <div id="my-hp-bar" class="hp-bar" style="width: 100%;">100%</div>
+        <div id="my-hp" class="hp-bar my-hp-bar">
+            <div class="hp-bar-inner"></div>
+
         </div>
-        <div id="opponent-hp">
-            <h3>Enemy HP</h3>
-            <div id="opponent-hp-bar" class="hp-bar" style="width: 100%;">100%</div>
+        <div id="opponent-hp" class="hp-bar opponent-hp-bar">
+            <div class="hp-bar-inner"></div>
+
         </div>
     </div>
 
     <div id="main-content">
-        <h1>QuizFight!</h1>
+        <h1>Fight!</h1>
 
         <div id="user-section">
             <input type="text" id="username" placeholder="Enter your username">
@@ -225,18 +276,20 @@
             <button onclick="restartGame()">Restart Game</button>
         </div>
 
+        <div id="cutin-background" class="cutin-background"></div>
+
         <div id="ready" class="ready">
             <img src="./node_modules/Img/here.jpg" alt="Ready Image">
         </div>
 
         <div id="attack" class="attack">
             <p>YOUR ATTACK</p>
-            <img src="./node_modules/Img/hado.jpg" alt="Attack Image">
+            <img src="./node_modules/Img/ryoryo.png" alt="Attack Image">
         </div>
 
         <div id="damage" class="damage">
             <p>YOUR DAMAGE</p>
-            <img src="./node_modules/Img/ken.jpg" alt="Damage Image">
+            <img src="./node_modules/Img/ken2.png" alt="Damage Image">
         </div>
     </div>
 
@@ -390,18 +443,24 @@
 
         function updateHP(hp) {
             userHP = new Map(hp);
-            const myHpBar = document.getElementById('my-hp-bar');
-            const opponentHpBar = document.getElementById('opponent-hp-bar');
+            const myHpBarInner = document.querySelector('#my-hp .hp-bar-inner');
+            const opponentHpBarInner = document.querySelector('#opponent-hp .hp-bar-inner');
+
             hp.forEach(([username, hpValue]) => {
+                const percentage = hpValue * 20;
+                const color = percentage > 65 ? 'linear-gradient(to bottom, #00ff00, #006400)'
+                    : percentage > 30 ? 'linear-gradient(to bottom, #ffff00, #999900)'
+                        : 'linear-gradient(to bottom, #ff0000, #990000)';
                 if (username === user) {
-                    myHpBar.style.width = `${hpValue * 20}%`;
-                    myHpBar.textContent = `${hpValue * 20}%`;
+                    myHpBarInner.style.width = `${percentage}%`;
+                    myHpBarInner.style.background = color;
                 } else {
-                    opponentHpBar.style.width = `${hpValue * 20}%`;
-                    opponentHpBar.textContent = `${hpValue * 20}%`;
+                    opponentHpBarInner.style.width = `${percentage}%`;
+                    opponentHpBarInner.style.background = color;
                 }
             });
         }
+
 
         function showReadyImage() {
             const readyElement = document.getElementById('ready');
@@ -415,17 +474,27 @@
 
         function showAttack() {
             const attackElement = document.getElementById('attack');
+            const cutinBackground = document.getElementById('cutin-background');
+            cutinBackground.classList.add('show');
+            cutinBackground.classList.add('attack-background'); // ATTACK用背景画像を設定
             attackElement.classList.add('animate');
             setTimeout(() => {
                 attackElement.classList.remove('animate');
+                cutinBackground.classList.remove('show');
+                cutinBackground.classList.remove('attack-background'); // 背景画像をリセット
             }, 4000); // 4秒後にアニメーションをリセット
         }
 
         function showDamage() {
             const damageElement = document.getElementById('damage');
+            const cutinBackground = document.getElementById('cutin-background');
+            cutinBackground.classList.add('show');
+            cutinBackground.classList.add('damage-background'); // DAMAGE用背景画像を設定
             damageElement.classList.add('animate');
             setTimeout(() => {
                 damageElement.classList.remove('animate');
+                cutinBackground.classList.remove('show');
+                cutinBackground.classList.remove('damage-background'); // 背景画像をリセット
                 updateHP(Array.from(userHP)); // ダメージ表示後にHPを更新
             }, 4000); // 4秒後にアニメーションをリセット
         }
@@ -433,10 +502,10 @@
         function restartGame() {
             document.getElementById('end-game').style.display = 'none';
             document.getElementById('responses').innerHTML = '';
-            document.getElementById('my-hp-bar').style.width = '100%';
-            document.getElementById('opponent-hp-bar').style.width = '100%';
-            document.getElementById('my-hp-bar').textContent = '100%';
-            document.getElementById('opponent-hp-bar').textContent = '100%';
+            document.querySelector('#my-hp .hp-bar-inner').style.width = '100%';
+            document.querySelector('#opponent-hp .hp-bar-inner').style.width = '100%';
+            document.querySelector('#my-hp .hp-bar-inner').style.backgroundColor = 'green';
+            document.querySelector('#opponent-hp .hp-bar-inner').style.backgroundColor = 'green';
             document.getElementById('user-section').style.display = 'block';
             user = '';
             ws.close();
