@@ -219,6 +219,11 @@
             background-image: url('./node_modules/Img/aka.gif');
         }
 
+        .victory-background {
+            background-image: url('./node_modules/Img/last.gif');
+            z-index: 1005;
+        }
+
         .correct {
             color: red;
             display: inline;
@@ -391,6 +396,8 @@
                     <p>YOUR DAMAGE</p>
                     <img src="./node_modules/Img/ken2.png" alt="Damage Image">
                 </div>
+
+                <div id="victory" class="cutin-background victory-background"></div> <!-- 勝利カットインを追加 -->
             </div>
         </div>
 
@@ -482,6 +489,7 @@
                         document.getElementById('end-game').style.display = 'block';
                         document.getElementById('winner-message').textContent = `${message.winner} has won the game!`;
                         updateHP(message.hp); // 最終HPを更新
+                        showVictoryCutin(); // 勝利カットインを表示
                     }
                     if (message.type === 'showNextButton') {
                         document.getElementById('next-question').style.display = 'block';
@@ -626,6 +634,14 @@
                     cutinBackground.classList.remove('damage-background'); // 背景画像をリセット
                     updateHP(Array.from(userHP)); // ダメージ表示後にHPを更新
                 }, 4000);
+            }
+
+            function showVictoryCutin() {
+                const victoryElement = document.getElementById('victory');
+                victoryElement.classList.add('show');
+                setTimeout(() => {
+                    victoryElement.classList.remove('show');
+                }, 7000); // 7秒後に非表示にする
             }
 
             function restartGame() {
