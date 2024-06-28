@@ -12,17 +12,16 @@
             padding: 0;
             font-family: "Press Start 2P", Arial, sans-serif;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
+            height: 100vh;
             overflow: hidden;
-            background-image: url('./node_modules/Img/gardo.gif');
-            background-attachment: fixed;
-            background-size: cover;
+            background-color: black;
         }
 
         #header {
             position: fixed;
+            top: 20px;
             right: 0;
             width: 100%;
             display: flex;
@@ -85,15 +84,18 @@
         }
 
         #main-content {
-            position: relative;
+            position: fixed;
             top: 100px;
             width: 100%;
-            max-width: 800px;
+            max-width: 1200px;
+            height: 80vh;
             text-align: center;
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             padding: 20px;
+            background-image: url('./node_modules/Img/gardo.gif');
+            background-size: cover;
         }
 
         .ready {
@@ -241,7 +243,7 @@
             border-radius: 10px;
             padding: 5px 20px;
             position: fixed;
-            top: 0;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1003;
@@ -249,323 +251,395 @@
 
         #introGif {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 50%;
+            left: 50%;
+            width: 50%;
+            height: 50%;
+            transform: translate(-50%, -50%);
             z-index: 1000;
-            object-fit: cover;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            background-color: rgba(0, 0, 0, 1);
         }
 
         #content-container {
             display: none;
             opacity: 0;
             transition: opacity 0.5s;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #user-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 600px;
+            height: 400px;
+        }
+
+        #username {
+            font-size: 16px;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 60%;
+            text-align: center;
+        }
+
+        #user-section button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            width: 20%;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .yoko {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 400px;
+        }
+
+        #waiting-message {
+            display: none;
+            color: white;
+            font-size: 24px;
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
-
     <img id="introGif" src="./node_modules/Img/start.gif" alt="Intro GIF">
     <div id="content-container">
-        <div id="header">
-            <div id="my-hp" class="hp-bar my-hp-bar">
-                <div class="hp-bar-inner"></div>
-            </div>
-            <div class="countdown-container">
-                <div id="countdown"></div>
-            </div>
-            <div id="opponent-hp" class="hp-bar opponent-hp-bar">
-                <div class="hp-bar-inner"></div>
+        <div id="user-section">
+            <img src="./node_modules/Img/hado.jpg" alt=""><br>
+            <input type="text" id="username" placeholder="名前を入力してください">
+            <div class="yoko">
+                <button onclick="startQuiz()">GO</button>
+                <button onclick="cancel()">STOP</button>
             </div>
         </div>
 
+        <div id="waiting-message">
+            <p>対戦相手を募集しています...</p>
+        </div>
 
-
-        <div id="main-content">
-            <h1>Fight!</h1>
-
-            <div id="user-section">
-                <input type="text" id="username" placeholder="Enter your username">
-                <button onclick="startQuiz()">試合開始</button>
+        <div id="main-content" class="hidden">
+            <div id="header">
+                <div id="my-hp" class="hp-bar my-hp-bar">
+                    <div class="hp-bar-inner"></div>
+                </div>
+                <div class="countdown-container">
+                    <div id="countdown"></div>
+                </div>
+                <div id="opponent-hp" class="hp-bar opponent-hp-bar">
+                    <div class="hp-bar-inner"></div>
+                </div>
             </div>
 
-            <div id="waiting-message">
-                <p>対戦相手を募集しています...</p>
-            </div>
+            <div id="quiz-container">
+                <h1>Fight!</h1>
 
-            <div id="ready-message">
-                <p>問題を開始します...</p>
-                <p id="countdown"></p>
-            </div>
+                <div id="ready-message">
+                    <p>問題を開始します...</p>
+                    <p id="countdown"></p>
+                </div>
 
-            <div id="quiz-section">
-                <div id="quiz"></div>
-                <input type="text" id="answer" placeholder="Type your answer here">
-                <button onclick="sendAnswer()">ATTACK!</button>
-                <div id="responses"></div>
-            </div>
+                <div id="quiz-section">
+                    <div id="quiz"></div>
+                    <input type="text" id="answer" placeholder="Type your answer here">
+                    <button onclick="sendAnswer()">ATTACK!</button>
+                    <div id="responses"></div>
+                </div>
 
-            <div id="next-question">
-                <p>次の問題へ進むボタンを押してください</p>
-                <button onclick="readyForNextQuestion()">次の問題へ進む</button>
-                <p id="waiting-next"></p>
-            </div>
+                <div id="next-question">
+                    <p>次の問題へ進むボタンを押してください</p>
+                    <button onclick="readyForNextQuestion()">次の問題へ進む</button>
+                    <p id="waiting-next"></p>
+                </div>
 
-            <div id="end-game">
-                <p id="winner-message"></p>
-                <button onclick="restartGame()">Restart Game</button>
-            </div>
+                <div id="end-game">
+                    <p id="winner-message"></p>
+                    <button onclick="restartGame()">Restart Game</button>
+                </div>
 
-            <div id="cutin-background" class="cutin-background"></div>
+                <div id="cutin-background" class="cutin-background"></div>
 
-            <div id="ready" class="ready">
-                <img src="./node_modules/Img/here.jpg" alt="Ready Image">
-            </div>
+                <div id="ready" class="ready">
+                    <img src="./node_modules/Img/here.jpg" alt="Ready Image">
+                </div>
 
-            <div id="attack" class="attack">
-                <p>YOUR ATTACK</p>
-                <img src="./node_modules/Img/ryoryo.png" alt="Attack Image">
-            </div>
+                <div id="attack" class="attack">
+                    <p>YOUR ATTACK</p>
+                    <img src="./node_modules/Img/ryoryo.png" alt="Attack Image">
+                </div>
 
-            <div id="damage" class="damage">
-                <p>YOUR DAMAGE</p>
-                <img src="./node_modules/Img/ken2.png" alt="Damage Image">
+                <div id="damage" class="damage">
+                    <p>YOUR DAMAGE</p>
+                    <img src="./node_modules/Img/ken2.png" alt="Damage Image">
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        window.onload = function () {
-            const introGif = document.getElementById('introGif');
-            const contentContainer = document.getElementById('content-container');
+        <script>
+            window.onload = function () {
+                const introGif = document.getElementById('introGif');
+                const contentContainer = document.getElementById('content-container');
+                const userSection = document.getElementById('user-section');
+                const waitingMessage = document.getElementById('waiting-message');
+                const mainContent = document.getElementById('main-content');
 
-            setTimeout(() => {
-                introGif.style.display = 'none';
-                contentContainer.style.display = 'block';
                 setTimeout(() => {
-                    contentContainer.style.opacity = 1;
-                }, 100); // 適切な遅延を設定
-            }, 900); // 0.4秒後に画面を切り替える
-        };
-
-        let ws;
-        let user;
-        let userHP = new Map();
-
-        function connectWebSocket() {
-            ws = new WebSocket('ws://localhost:8081');
-
-            ws.onopen = () => {
-                console.log('Connected to WebSocket server');
-                ws.send(JSON.stringify({ type: 'register', user: user }));
+                    introGif.style.opacity = 1; // ふわっと表示
+                    setTimeout(() => {
+                        introGif.style.display = 'none';
+                        contentContainer.style.display = 'flex';
+                        userSection.style.display = 'flex';
+                        setTimeout(() => {
+                            contentContainer.style.opacity = 1;
+                        }, 100); // 適切な遅延を設定
+                    }, 1400); // 1.4秒後に画面を切り替える
+                }, 100); // 0.1秒後にイントロGIFを表示する
             };
 
-            ws.onmessage = (event) => {
-                const message = JSON.parse(event.data);
-                console.log('Received message from server:', message);
+            let ws;
+            let user;
+            let userHP = new Map();
 
-                if (message.type === 'readyToStart') {
-                    document.getElementById('waiting-message').style.display = 'none';
-                    document.getElementById('ready-message').style.display = 'block';
-                    showReadyImage();
-                    startCountdown();
+            function connectWebSocket() {
+                ws = new WebSocket('ws://localhost:8081');
 
-                    // 初期HPを表示
-                    updateHP(message.initialHP);
+                ws.onopen = () => {
+                    console.log('Connected to WebSocket server');
+                    if (user) {
+                        ws.send(JSON.stringify({ type: 'register', user: user }));
+                    } else {
+                        console.error('User is not defined');
+                    }
+                };
+
+                ws.onmessage = (event) => {
+                    const message = JSON.parse(event.data);
+                    console.log('Received message from server:', message);
+
+                    if (message.type === 'readyToStart') {
+                        document.getElementById('waiting-message').style.display = 'none';
+                        document.getElementById('main-content').classList.remove('hidden');
+                        document.getElementById('ready-message').style.display = 'block';
+                        showReadyImage();
+                        startCountdown();
+
+                        // 初期HPを表示
+                        updateHP(message.initialHP);
+                    }
+                    if (message.type === 'startQuiz') {
+                        document.getElementById('ready-message').style.display = 'none';
+                        document.getElementById('quiz-section').style.display = 'block';
+                        document.getElementById('next-question').style.display = 'none';
+                        document.getElementById('quiz').textContent = message.question;
+                        document.getElementById('responses').innerHTML = ''; // 回答ログをリセット
+                        enableInput(); // 入力を有効化
+                    }
+                    if (message.type === 'answer') {
+                        const responseElement = document.createElement('p');
+                        responseElement.innerHTML = `<strong>${message.user}:</strong> ${message.answer}`;
+                        if (message.correct) {
+                            responseElement.classList.add('correct');
+                            disableInput(); // 正解したら入力を無効化
+                            document.getElementById('next-question').style.display = 'block';
+
+                            if (message.user === user) {
+                                showAttack();
+                            } else {
+                                showDamage();
+                            }
+                        } else {
+                            responseElement.classList.add('incorrect');
+                        }
+                        document.getElementById('responses').appendChild(responseElement);
+                    }
+                    if (message.type === 'updateScores') {
+                        // HP表示を更新
+                        updateHP(message.hp);
+                    }
+                    if (message.type === 'endGame') {
+                        document.getElementById('quiz-section').style.display = 'none';
+                        document.getElementById('ready-message').style.display = 'none';
+                        document.getElementById('next-question').style.display = 'none';
+                        document.getElementById('end-game').style.display = 'block';
+                        document.getElementById('winner-message').textContent = `${message.winner} has won the game!`;
+                        updateHP(message.hp); // 最終HPを更新
+                    }
+                    if (message.type === 'showNextButton') {
+                        document.getElementById('next-question').style.display = 'block';
+                    }
+                    if (message.type === 'waitingForNext') {
+                        document.getElementById('waiting-next').textContent = `Waiting for ${message.usersReady.join(", ")} to proceed...`;
+                    }
+                    if (message.type === 'startNextQuiz') {
+                        startCountdownForNext(); // 次の問題のカウントダウンを開始
+                    }
+                };
+
+                ws.onclose = () => {
+                    console.log('WebSocket connection closed. Reconnecting...');
+                    setTimeout(connectWebSocket, 1000);
+                };
+
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                };
+            }
+
+            function sendAnswer() {
+                const answerInput = document.getElementById('answer');
+                const answer = answerInput.value;
+
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'answer', user: user, answer: answer }));
+                    answerInput.value = '';
+                } else {
+                    console.error('WebSocket is not open. Ready state: ' + ws.readyState);
                 }
-                if (message.type === 'startQuiz') {
+            }
+
+            function readyForNextQuestion() {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'readyForNextQuestion', user: user }));
+                }
+            }
+
+            function startQuiz() {
+                user = document.getElementById('username').value;
+                if (user) {
+                    console.log(`Starting quiz for user: ${user}`);
+                    document.getElementById('user-section').style.display = 'none';
+                    document.getElementById('waiting-message').style.display = 'block';
+                    connectWebSocket();
+                } else {
+                    alert('Please enter a username');
+                }
+            }
+
+            function cancel() {
+                alert('Canceled');
+            }
+
+            function startCountdown() {
+                let countdown = 5;
+                const countdownElement = document.getElementById('countdown');
+                countdownElement.textContent = countdown; // 初期値の設定
+                const interval = setInterval(() => {
+                    countdown--;
+                    countdownElement.textContent = countdown;
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                    }
+                }, 1000);
+            }
+
+            function startCountdownForNext() {
+                document.getElementById('quiz-section').style.display = 'none';
+                document.getElementById('ready-message').style.display = 'block';
+                startCountdown(); // カウントダウンを開始
+                setTimeout(() => {
                     document.getElementById('ready-message').style.display = 'none';
                     document.getElementById('quiz-section').style.display = 'block';
-                    document.getElementById('next-question').style.display = 'none';
-                    document.getElementById('quiz').textContent = message.question;
-                    document.getElementById('responses').innerHTML = ''; // 回答ログをリセット
-                    enableInput(); // 入力を有効化
-                }
-                if (message.type === 'answer') {
-                    const responseElement = document.createElement('p');
-                    responseElement.innerHTML = `<strong>${message.user}:</strong> ${message.answer}`;
-                    if (message.correct) {
-                        responseElement.classList.add('correct');
-                        disableInput(); // 正解したら入力を無効化
-                        document.getElementById('next-question').style.display = 'block';
+                }, 5000);
+            }
 
-                        if (message.user === user) {
-                            showAttack();
-                        } else {
-                            showDamage();
-                        }
+            function disableInput() {
+                document.getElementById('answer').disabled = true;
+                document.querySelector('button[onclick="sendAnswer()"]').disabled = true;
+            }
+
+            function enableInput() {
+                document.getElementById('answer').disabled = false;
+                document.querySelector('button[onclick="sendAnswer()"]').disabled = false;
+            }
+
+            function updateHP(hp) {
+                userHP = new Map(hp);
+                const myHpBarInner = document.querySelector('#my-hp .hp-bar-inner');
+                const opponentHpBarInner = document.querySelector('#opponent-hp .hp-bar-inner');
+
+                hp.forEach(([username, hpValue]) => {
+                    const percentage = hpValue * 20;
+                    const color = percentage > 65 ? 'linear-gradient(to right, #00ff00, #ffff00 65%, #ff0000 100%)'
+                        : percentage > 30 ? 'linear-gradient(to right, #ffff00, #999900 65%, #ff0000 100%)'
+                            : 'linear-gradient(to right, #ff0000, #990000)';
+                    if (username === user) {
+                        myHpBarInner.style.width = `${percentage}%`;
+                        myHpBarInner.style.background = color;
                     } else {
-                        responseElement.classList.add('incorrect');
+                        opponentHpBarInner.style.width = `${percentage}%`;
+                        opponentHpBarInner.style.background = color;
                     }
-                    document.getElementById('responses').appendChild(responseElement);
-                }
-                if (message.type === 'updateScores') {
-                    // HP表示を更新
-                    updateHP(message.hp);
-                }
-                if (message.type === 'endGame') {
-                    document.getElementById('quiz-section').style.display = 'none';
-                    document.getElementById('ready-message').style.display = 'none';
-                    document.getElementById('next-question').style.display = 'none';
-                    document.getElementById('end-game').style.display = 'block';
-                    document.getElementById('winner-message').textContent = `${message.winner} has won the game!`;
-                    updateHP(message.hp); // 最終HPを更新
-                }
-                if (message.type === 'showNextButton') {
-                    document.getElementById('next-question').style.display = 'block';
-                }
-                if (message.type === 'waitingForNext') {
-                    document.getElementById('waiting-next').textContent = `Waiting for ${message.usersReady.join(", ")} to proceed...`;
-                }
-                if (message.type === 'startNextQuiz') {
-                    startCountdownForNext(); // 次の問題のカウントダウンを開始
-                }
-            };
-
-            ws.onclose = () => {
-                console.log('WebSocket connection closed. Reconnecting...');
-                setTimeout(connectWebSocket, 1000);
-            };
-
-            ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
-            };
-        }
-
-        function sendAnswer() {
-            const answerInput = document.getElementById('answer');
-            const answer = answerInput.value;
-
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'answer', user: user, answer: answer }));
-                answerInput.value = '';
-            } else {
-                console.error('WebSocket is not open. Ready state: ' + ws.readyState);
+                });
             }
-        }
 
-        function readyForNextQuestion() {
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'readyForNextQuestion', user: user }));
+            function showReadyImage() {
+                const readyElement = document.getElementById('ready');
+                readyElement.style.display = 'block';
+                readyElement.classList.add('show');
+                setTimeout(() => {
+                    readyElement.classList.remove('show');
+                    readyElement.style.display = 'none';
+                }, 3000);
             }
-        }
 
-        function startQuiz() {
-            user = document.getElementById('username').value;
-            if (user) {
-                console.log(`Starting quiz for user: ${user}`);
-                document.getElementById('user-section').style.display = 'none';
-                document.getElementById('waiting-message').style.display = 'block';
-                connectWebSocket();
-            } else {
-                alert('Please enter a username');
+            function showAttack() {
+                const attackElement = document.getElementById('attack');
+                const cutinBackground = document.getElementById('cutin-background');
+                cutinBackground.classList.add('show');
+                cutinBackground.classList.add('attack-background'); // ATTACK用背景画像を設定
+                attackElement.classList.add('animate');
+                setTimeout(() => {
+                    attackElement.classList.remove('animate');
+                    cutinBackground.classList.remove('show');
+                    cutinBackground.classList.remove('attack-background'); // 背景画像をリセット
+                }, 4000);
             }
-        }
 
-        function startCountdown() {
-            let countdown = 5;
-            const countdownElement = document.getElementById('countdown');
-            countdownElement.textContent = countdown; // 初期値の設定
-            const interval = setInterval(() => {
-                countdown--;
-                countdownElement.textContent = countdown;
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                }
-            }, 1000);
-        }
+            function showDamage() {
+                const damageElement = document.getElementById('damage');
+                const cutinBackground = document.getElementById('cutin-background');
+                cutinBackground.classList.add('show');
+                cutinBackground.classList.add('damage-background'); // DAMAGE用背景画像を設定
+                damageElement.classList.add('animate');
+                setTimeout(() => {
+                    damageElement.classList.remove('animate');
+                    cutinBackground.classList.remove('show');
+                    cutinBackground.classList.remove('damage-background'); // 背景画像をリセット
+                    updateHP(Array.from(userHP)); // ダメージ表示後にHPを更新
+                }, 4000);
+            }
 
-        function startCountdownForNext() {
-            document.getElementById('quiz-section').style.display = 'none';
-            document.getElementById('ready-message').style.display = 'block';
-            startCountdown(); // カウントダウンを開始
-            setTimeout(() => {
-                document.getElementById('ready-message').style.display = 'none';
-                document.getElementById('quiz-section').style.display = 'block';
-            }, 5000);
-        }
-
-        function disableInput() {
-            document.getElementById('answer').disabled = true;
-            document.querySelector('button[onclick="sendAnswer()"]').disabled = true;
-        }
-
-        function enableInput() {
-            document.getElementById('answer').disabled = false;
-            document.querySelector('button[onclick="sendAnswer()"]').disabled = false;
-        }
-
-        function updateHP(hp) {
-            userHP = new Map(hp);
-            const myHpBarInner = document.querySelector('#my-hp .hp-bar-inner');
-            const opponentHpBarInner = document.querySelector('#opponent-hp .hp-bar-inner');
-
-            hp.forEach(([username, hpValue]) => {
-                const percentage = hpValue * 20;
-                const color = percentage > 65 ? 'linear-gradient(to right, #00ff00, #ffff00 65%, #ff0000 100%)'
-                    : percentage > 30 ? 'linear-gradient(to right, #ffff00, #999900 65%, #ff0000 100%)'
-                        : 'linear-gradient(to right, #ff0000, #990000)';
-                if (username === user) {
-                    myHpBarInner.style.width = `${percentage}%`;
-                    myHpBarInner.style.background = color;
-                } else {
-                    opponentHpBarInner.style.width = `${percentage}%`;
-                    opponentHpBarInner.style.background = color;
-                }
-            });
-        }
-
-        function showReadyImage() {
-            const readyElement = document.getElementById('ready');
-            readyElement.style.display = 'block';
-            readyElement.classList.add('show');
-            setTimeout(() => {
-                readyElement.classList.remove('show');
-                readyElement.style.display = 'none';
-            }, 3000); // 3秒後に非表示にする
-        }
-
-        function showAttack() {
-            const attackElement = document.getElementById('attack');
-            const cutinBackground = document.getElementById('cutin-background');
-            cutinBackground.classList.add('show');
-            cutinBackground.classList.add('attack-background'); // ATTACK用背景画像を設定
-            attackElement.classList.add('animate');
-            setTimeout(() => {
-                attackElement.classList.remove('animate');
-                cutinBackground.classList.remove('show');
-                cutinBackground.classList.remove('attack-background'); // 背景画像をリセット
-            }, 4000); // 4秒後にアニメーションをリセット
-        }
-
-        function showDamage() {
-            const damageElement = document.getElementById('damage');
-            const cutinBackground = document.getElementById('cutin-background');
-            cutinBackground.classList.add('show');
-            cutinBackground.classList.add('damage-background'); // DAMAGE用背景画像を設定
-            damageElement.classList.add('animate');
-            setTimeout(() => {
-                damageElement.classList.remove('animate');
-                cutinBackground.classList.remove('show');
-                cutinBackground.classList.remove('damage-background'); // 背景画像をリセット
-                updateHP(Array.from(userHP)); // ダメージ表示後にHPを更新
-            }, 4000); // 4秒後にアニメーションをリセット
-        }
-
-        function restartGame() {
-            document.getElementById('end-game').style.display = 'none';
-            document.getElementById('responses').innerHTML = '';
-            document.querySelector('#my-hp .hp-bar-inner').style.width = '100%';
-            document.querySelector('#opponent-hp .hp-bar-inner').style.width = '100%';
-            document.querySelector('#my-hp .hp-bar-inner').style.backgroundColor = 'green';
-            document.querySelector('#opponent-hp .hp-bar-inner').style.backgroundColor = 'green';
-            document.getElementById('user-section').style.display = 'block';
-            user = '';
-            ws.close();
-        }
-    </script>
+            function restartGame() {
+                document.getElementById('end-game').style.display = 'none';
+                document.getElementById('responses').innerHTML = '';
+                document.querySelector('#my-hp .hp-bar-inner').style.width = '100%';
+                document.querySelector('#opponent-hp .hp-bar-inner').style.width = '100%';
+                document.querySelector('#my-hp .hp-bar-inner').style.backgroundColor = 'green';
+                document.querySelector('#opponent-hp .hp-bar-inner').style.backgroundColor = 'green';
+                document.getElementById('user-section').style.display = 'block';
+                user = '';
+                ws.close();
+            }
+        </script>
 </body>
 
 </html>
