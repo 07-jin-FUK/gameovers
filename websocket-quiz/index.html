@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>WebSocket Quiz</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link href='https://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Press+Start 2P' rel='stylesheet' type='text/css'>
     <style>
         body {
             margin: 0;
@@ -52,7 +52,8 @@
 
         .hp-bar-inner {
             height: 100%;
-            background: linear-gradient(to right, #00ff00 0%, #ffff00 65%, #ff0000 100%);
+            background: linear-gradient(to right, #08c508, #02b802 100%);
+            /* 初期値の色設定 */
             border: 1px solid #004d00;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             transition: width 2s ease-in-out, background-color 1s;
@@ -61,6 +62,8 @@
 
         .hp-bar.my-hp-bar {
             right: 0;
+            transform: rotateY(180deg);
+            /* HPバーを反転 */
         }
 
         .hp-bar.opponent-hp-bar {
@@ -398,6 +401,9 @@
                 </div>
 
                 <div id="victory" class="cutin-background victory-background"></div> <!-- 勝利カットインを追加 -->
+                <div id="final-background" style="display: none;"></div>
+                <img id="final-image" src="./node_modules/Img/KO4.png"
+                    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
             </div>
         </div>
 
@@ -586,9 +592,14 @@
 
                 hp.forEach(([username, hpValue]) => {
                     const percentage = hpValue * 20;
-                    const color = percentage > 65 ? 'linear-gradient(to right, #00ff00, #ffff00 65%, #ff0000 100%)'
-                        : percentage > 30 ? 'linear-gradient(to right, #ffff00, #999900 65%, #ff0000 100%)'
-                            : 'linear-gradient(to right, #ff0000, #990000)';
+                    let color;
+                    if (percentage > 65) {
+                        color = username === user ? 'linear-gradient(to left, #08c508, #02b802 100%)' : 'linear-gradient(to right, #08c508, #02b802 100%)';
+                    } else if (percentage > 30) {
+                        color = username === user ? 'linear-gradient(to left, #ffff99, #ffcc00 100%)' : 'linear-gradient(to right, #ffff99, #ffcc00 100%)';
+                    } else {
+                        color = username === user ? 'linear-gradient(to left, #ff0000, #990000)' : 'linear-gradient(to right, #ff0000, #990000)';
+                    }
                     if (username === user) {
                         myHpBarInner.style.width = `${percentage}%`;
                         myHpBarInner.style.background = color;
@@ -641,6 +652,8 @@
                 victoryElement.classList.add('show');
                 setTimeout(() => {
                     victoryElement.classList.remove('show');
+                    document.getElementById('main-content').style.backgroundImage = 'url("./node_modules/Img/KOafter.gif")';
+                    document.getElementById('final-image').style.display = 'block';
                 }, 7000); // 7秒後に非表示にする
             }
 
@@ -652,6 +665,8 @@
                 document.querySelector('#my-hp .hp-bar-inner').style.backgroundColor = 'green';
                 document.querySelector('#opponent-hp .hp-bar-inner').style.backgroundColor = 'green';
                 document.getElementById('user-section').style.display = 'block';
+                document.getElementById('final-background').style.display = 'none';
+                document.getElementById('final-image').style.display = 'none';
                 user = '';
                 ws.close();
             }
