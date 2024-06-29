@@ -326,6 +326,13 @@
             font-size: 24px;
             text-align: center;
         }
+
+        #match-found-message {
+            display: none;
+            color: white;
+            font-size: 24px;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -343,6 +350,10 @@
 
         <div id="waiting-message">
             <p>対戦相手を募集しています...</p>
+        </div>
+
+        <div id="match-found-message">
+            <p>対戦相手が見つかりました。まもなく試合が始まります。</p>
         </div>
 
         <div id="main-content" class="hidden">
@@ -414,8 +425,10 @@
                 const userSection = document.getElementById('user-section');
                 const waitingMessage = document.getElementById('waiting-message');
                 const mainContent = document.getElementById('main-content');
+                const introSound = new Audio('./node_modules/Bgm/top.mp3'); // イントロGIFの効果音
 
                 setTimeout(() => {
+                    introSound.play(); // 効果音を再生
                     introGif.style.opacity = 1; // ふわっと表示
                     setTimeout(() => {
                         introGif.style.display = 'none';
@@ -450,14 +463,22 @@
 
                     if (message.type === 'readyToStart') {
                         document.getElementById('waiting-message').style.display = 'none';
-                        document.getElementById('main-content').classList.remove('hidden');
-                        document.getElementById('ready-message').style.display = 'block';
-                        showReadyImage();
-                        startCountdown();
+                        document.getElementById('match-found-message').style.display = 'block'; // 新しいメッセージを表示
+                        document.getElementById('state3-bgm').pause(); // 状態3のBGMを停止
+                        document.getElementById('state4-bgm').play(); // 状態4のBGMを再生
 
-                        // 初期HPを表示
-                        updateHP(message.initialHP);
+                        setTimeout(() => {
+                            document.getElementById('match-found-message').style.display = 'none';
+                            document.getElementById('main-content').classList.remove('hidden');
+                            document.getElementById('ready-message').style.display = 'block';
+                            showReadyImage();
+                            startCountdown();
+
+                            // 初期HPを表示
+                            updateHP(message.initialHP);
+                        }, 3000); // 3秒後にメインコンテンツを表示
                     }
+
                     if (message.type === 'startQuiz') {
                         document.getElementById('ready-message').style.display = 'none';
                         document.getElementById('quiz-section').style.display = 'block';
@@ -542,7 +563,14 @@
                     console.log(`Starting quiz for user: ${user}`);
                     document.getElementById('user-section').style.display = 'none';
                     document.getElementById('waiting-message').style.display = 'block';
+
+                    // GO効果音を再生
+                    document.getElementById('go-sound').play();
+
                     connectWebSocket();
+
+                    // 状態3BGMを再生
+                    document.getElementById('state3-bgm').play();
                 } else {
                     alert('Please enter a username');
                 }
@@ -553,12 +581,13 @@
             }
 
             function startCountdown() {
-                let countdown = 5;
+                let countdown = 6;  // カウントダウンの開始時間を6秒に変更
                 const countdownElement = document.getElementById('countdown');
                 countdownElement.textContent = countdown; // 初期値の設定
                 const interval = setInterval(() => {
                     countdown--;
                     countdownElement.textContent = countdown;
+                    document.getElementById('countdown-sound').play(); // カウントダウン効果音を再生
                     if (countdown <= 0) {
                         clearInterval(interval);
                     }
@@ -572,7 +601,7 @@
                 setTimeout(() => {
                     document.getElementById('ready-message').style.display = 'none';
                     document.getElementById('quiz-section').style.display = 'block';
-                }, 5000);
+                }, 6000);  // 6秒後に画面を切り替える
             }
 
             function disableInput() {
@@ -626,6 +655,10 @@
                 cutinBackground.classList.add('show');
                 cutinBackground.classList.add('attack-background'); // ATTACK用背景画像を設定
                 attackElement.classList.add('animate');
+
+                // 攻撃効果音を再生
+                document.getElementById('attack-sound').play();
+
                 setTimeout(() => {
                     attackElement.classList.remove('animate');
                     cutinBackground.classList.remove('show');
@@ -639,6 +672,10 @@
                 cutinBackground.classList.add('show');
                 cutinBackground.classList.add('damage-background'); // DAMAGE用背景画像を設定
                 damageElement.classList.add('animate');
+
+                // ダメージ効果音を再生
+                document.getElementById('damage-sound').play();
+
                 setTimeout(() => {
                     damageElement.classList.remove('animate');
                     cutinBackground.classList.remove('show');
@@ -654,6 +691,10 @@
                     victoryElement.classList.remove('show');
                     document.getElementById('main-content').style.backgroundImage = 'url("./node_modules/Img/KOafter.gif")';
                     document.getElementById('final-image').style.display = 'block';
+
+                    // 勝利効果音を再生
+                    document.getElementById('victory-sound').play();
+
                 }, 7000); // 7秒後に非表示にする
             }
 
@@ -671,6 +712,13 @@
                 ws.close();
             }
         </script>
+        <audio id="go-sound" src="./node_modules/Bgm/go.mp3"></audio>
+        <audio id="countdown-sound" src="./node_modules/Bgm/count.mp3"></audio>
+        <audio id="state3-bgm" src="./node_modules/Bgm/taiki.mp3" loop></audio>
+        <audio id="state4-bgm" src="./node_modules/Bgm/sentou.mp3" loop></audio>
+        <audio id="attack-sound" src="./node_modules/Bgm/attack.mp3"></audio>
+        <audio id="damage-sound" src="./node_modules/Bgm/damage.mp3"></audio>
+        <audio id="victory-sound" src="./node_modules/Bgm/win.mp3"></audio>
 </body>
 
 </html>
