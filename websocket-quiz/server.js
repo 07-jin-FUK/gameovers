@@ -133,7 +133,7 @@ wss.on('connection', ws => {
                 });
                 setTimeout(() => {
                     sendQuestion();
-                }, 6000); // 5秒後に次の問題を開始
+                }, 6000); // 6秒後に次の問題を開始
             }
             clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
@@ -141,7 +141,8 @@ wss.on('connection', ws => {
                 }
             });
         } else if (parsedMessage.type === 'startQuizRequest') {
-            sendQuestion();
+            console.log('startQuizRequest received'); // デバッグ用ログ
+            // sendQuestion();
         }
     });
 
@@ -152,8 +153,10 @@ wss.on('connection', ws => {
 });
 
 function sendQuestion() {
+    console.log('sendQuestion called'); // デバッグ用ログ
     // 新しい質問を見つける
     let availableQuestions = questions.filter((_, index) => !askedQuestions.has(index));
+    console.log('availableQuestions:', availableQuestions.length); // デバッグ用ログ
     if (availableQuestions.length === 0) {
         console.log('All questions have been asked.');
         resetGame();
@@ -162,20 +165,18 @@ function sendQuestion() {
     let newQuestionIndex = Math.floor(Math.random() * availableQuestions.length);
     currentQuestionIndex = questions.indexOf(availableQuestions[newQuestionIndex]);
     askedQuestions.add(currentQuestionIndex);
+    console.log('New question index:', currentQuestionIndex); // デバッグ用ログ
 
     const question = questions[currentQuestionIndex];
     clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({
-                type: 'startQuiz',
-                question: question.question,
-                example: question.example // 例文を追加
-            }));
+            client.send(JSON.stringify({ type: 'startQuiz', question: question.question, example: question.example }));
         }
     });
 }
 
 function resetGame() {
+    console.log('resetGame called'); // デバッグ用ログ
     // ゲームのリセット、ユーザーのスコアもクリアする
     connectedUsers.clear();
     userHP.clear();
