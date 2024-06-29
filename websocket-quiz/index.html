@@ -77,6 +77,60 @@
             text-shadow: 2px 2px 5px black;
         }
 
+        #quiz-section {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #quiz {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        #example {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        #answer-section {
+            position: fixed;
+            bottom: 100px;
+            width: 70%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #answer {
+            width: 30%;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: 2px solid #000;
+        }
+
+        #answer-button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: 2px solid #000;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
         #quiz-section,
         #waiting-message,
         #ready-message,
@@ -379,8 +433,11 @@
 
                 <div id="quiz-section">
                     <div id="quiz"></div>
-                    <input type="text" id="answer" placeholder="Type your answer here">
-                    <button onclick="sendAnswer()">ATTACK!</button>
+                    <div id="example"></div> <!-- 例文を表示する要素 -->
+                    <div id="answer-section">
+                        <input type="text" id="answer" placeholder="Type your answer here">
+                        <button id="answer-button" onclick="sendAnswer()">ATTACK!</button>
+                    </div>
                     <div id="responses"></div>
                 </div>
 
@@ -465,7 +522,9 @@
                         document.getElementById('waiting-message').style.display = 'none';
                         document.getElementById('match-found-message').style.display = 'block'; // 新しいメッセージを表示
                         document.getElementById('state3-bgm').pause(); // 状態3のBGMを停止
-                        document.getElementById('state4-bgm').play(); // 状態4のBGMを再生
+                        let state4Bgm = document.getElementById('state4-bgm');
+                        state4Bgm.volume = 0.2; // 音量を50%に設定
+                        state4Bgm.play();
 
                         setTimeout(() => {
                             document.getElementById('match-found-message').style.display = 'none';
@@ -484,6 +543,7 @@
                         document.getElementById('quiz-section').style.display = 'block';
                         document.getElementById('next-question').style.display = 'none';
                         document.getElementById('quiz').textContent = message.question;
+                        document.getElementById('example').textContent = message.example; // 例文を表示
                         document.getElementById('responses').innerHTML = ''; // 回答ログをリセット
                         enableInput(); // 入力を有効化
                     }
@@ -568,13 +628,16 @@
                     document.getElementById('go-sound').play();
 
                     connectWebSocket();
-
                     // 状態3BGMを再生
-                    document.getElementById('state3-bgm').play();
+                    let state3Bgm = document.getElementById('state3-bgm');
+                    state3Bgm.volume = 0.2; // 音量を50%に設定
+                    state3Bgm.play();
                 } else {
                     alert('Please enter a username');
                 }
             }
+
+
 
             function cancel() {
                 alert('Canceled');
@@ -590,6 +653,8 @@
                     document.getElementById('countdown-sound').play(); // カウントダウン効果音を再生
                     if (countdown <= 0) {
                         clearInterval(interval);
+                        // カウントダウンが0になった時に問題を表示する
+                        ws.send(JSON.stringify({ type: 'startQuizRequest', user: user }));
                     }
                 }, 1000);
             }
