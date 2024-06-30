@@ -64,7 +64,7 @@ body {
 #countdown {
     font-family: "Press Start 2P", Arial, sans-serif;
     font-size: 50px;
-    color: purple;
+    color: rgb(249, 250, 250);
     text-shadow: 2px 2px 5px black;
 }
 

@@ -48,13 +48,15 @@ function connectWebSocket() {
             let state4Bgm = document.getElementById('state4-bgm');
             state4Bgm.volume = 0.2; // 音量を50%に設定
             state4Bgm.play();
-
             setTimeout(() => {
                 document.getElementById('match-found-message').style.display = 'none';
                 document.getElementById('main-content').classList.remove('hidden');
                 document.getElementById('ready-message').style.display = 'block';
                 showReadyImage();
                 startCountdown();
+
+                // 効果音を追加
+                document.getElementById('your-new-sound').play();
 
                 // 初期HPを表示
                 updateHP(message.initialHP);
@@ -78,6 +80,9 @@ function connectWebSocket() {
                 disableInput(); // 正解したら入力を無効化
                 document.getElementById('next-question').style.display = 'block'; // 正答後に表示
 
+                // 正解の効果音を再生
+                document.getElementById('correct-sound').play();
+
                 if (message.user === user) {
                     showAttack();
                 } else {
@@ -85,8 +90,12 @@ function connectWebSocket() {
                 }
             } else {
                 responseElement.classList.add('incorrect');
+
+                // 不正解の効果音を再生
+                document.getElementById('incorrect-sound').play();
             }
-            document.getElementById('responses').appendChild(responseElement);
+            console.log('Adding response to log:', responseElement); // デバッグ用ログ
+            document.getElementById('responses').appendChild(responseElement); // 回答ログを追加
         }
         if (message.type === 'updateScores') {
             // HP表示を更新
@@ -97,7 +106,7 @@ function connectWebSocket() {
             document.getElementById('ready-message').style.display = 'none';
             document.getElementById('next-question').style.display = 'none';
             document.getElementById('end-game').style.display = 'block';
-            document.getElementById('winner-message').textContent = `${message.winner} has won the game!`;
+            document.getElementById('winner-message').textContent = `${message.winner} WIN!`;
             updateHP(message.hp); // 最終HPを更新
             showVictoryCutin(); // 勝利カットインを表示
         }
@@ -105,7 +114,7 @@ function connectWebSocket() {
             document.getElementById('next-question').style.display = 'block';
         }
         if (message.type === 'waitingForNext') {
-            document.getElementById('waiting-next').textContent = `Waiting for ${message.usersReady.join(", ")} to proceed...`;
+            document.getElementById('waiting-next').textContent = `${message.usersReady.join(", ")} は待機済みです`;
         }
         if (message.type === 'startNextQuiz') {
             startCountdownForNext(); // 次の問題のカウントダウンを開始
@@ -239,50 +248,61 @@ function showReadyImage() {
 }
 
 function showAttack() {
-    const attackElement = document.getElementById('attack');
-    const cutinBackground = document.getElementById('cutin-background');
-    cutinBackground.classList.add('show');
-    cutinBackground.classList.add('attack-background'); // ATTACK用背景画像を設定
-    attackElement.classList.add('animate');
+    if (!document.getElementById('victory').classList.contains('show')) { // 勝利カットインが表示されていない場合のみ実行
+        const attackElement = document.getElementById('attack');
+        const cutinBackground = document.getElementById('cutin-background');
+        cutinBackground.classList.add('show');
+        cutinBackground.classList.add('attack-background'); // ATTACK用背景画像を設定
+        attackElement.classList.add('animate');
 
-    // 攻撃効果音を再生
-    document.getElementById('attack-sound').play();
+        // 攻撃効果音を再生
+        document.getElementById('attack-sound').play();
 
-    setTimeout(() => {
-        attackElement.classList.remove('animate');
-        cutinBackground.classList.remove('show');
-        cutinBackground.classList.remove('attack-background'); // 背景画像をリセット
-    }, 4000);
+        setTimeout(() => {
+            attackElement.classList.remove('animate');
+            cutinBackground.classList.remove('show');
+            cutinBackground.classList.remove('attack-background'); // 背景画像をリセット
+        }, 4000);
+    }
 }
 
 function showDamage() {
-    const damageElement = document.getElementById('damage');
-    const cutinBackground = document.getElementById('cutin-background');
-    cutinBackground.classList.add('show');
-    cutinBackground.classList.add('damage-background'); // DAMAGE用背景画像を設定
-    damageElement.classList.add('animate');
+    if (!document.getElementById('victory').classList.contains('show')) { // 勝利カットインが表示されていない場合のみ実行
+        const damageElement = document.getElementById('damage');
+        const cutinBackground = document.getElementById('cutin-background');
+        cutinBackground.classList.add('show');
+        cutinBackground.classList.add('damage-background'); // DAMAGE用背景画像を設定
+        damageElement.classList.add('animate');
 
-    // ダメージ効果音を再生
-    document.getElementById('damage-sound').play();
+        // ダメージ効果音を再生
+        document.getElementById('damage-sound').play();
 
-    setTimeout(() => {
-        damageElement.classList.remove('animate');
-        cutinBackground.classList.remove('show');
-        cutinBackground.classList.remove('damage-background'); // 背景画像をリセット
-        updateHP(Array.from(userHP)); // ダメージ表示後にHPを更新
-    }, 4000);
+        setTimeout(() => {
+            damageElement.classList.remove('animate');
+            cutinBackground.classList.remove('show');
+            cutinBackground.classList.remove('damage-background'); // 背景画像をリセット
+            updateHP(Array.from(userHP)); // ダメージ表示後にHPを更新
+        }, 4000);
+    }
 }
 
 function showVictoryCutin() {
     const victoryElement = document.getElementById('victory');
     victoryElement.classList.add('show');
+
+    // 勝利カットイン効果音を再生
+    document.getElementById('victory-sound1').play();
+    setTimeout(() => {
+        document.getElementById('victory-sound2').play();
+    }, 2000); // 2秒後に2つ目の効果音を再生
+
     setTimeout(() => {
         victoryElement.classList.remove('show');
         document.getElementById('main-content').style.backgroundImage = 'url("./node_modules/Img/KOafter.gif")';
         document.getElementById('final-image').style.display = 'block';
 
-        // 勝利効果音を再生
-        document.getElementById('victory-sound').play();
+        // Final-imageが表示されるタイミングで効果音を再生
+        document.getElementById('final-sound').play();
 
     }, 7000); // 7秒後に非表示にする
 }
