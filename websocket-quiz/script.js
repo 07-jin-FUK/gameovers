@@ -1,4 +1,3 @@
-
 window.onload = function () {
     const introGif = document.getElementById('introGif');
     const contentContainer = document.getElementById('content-container');
@@ -43,6 +42,7 @@ function connectWebSocket() {
 
         if (message.type === 'readyToStart') {
             document.getElementById('waiting-message').style.display = 'none';
+            hideSpinner(); // スピナーを非表示
             document.getElementById('match-found-message').style.display = 'block'; // 新しいメッセージを表示
             document.getElementById('state3-bgm').pause(); // 状態3のBGMを停止
             let state4Bgm = document.getElementById('state4-bgm');
@@ -64,7 +64,7 @@ function connectWebSocket() {
         if (message.type === 'startQuiz') {
             document.getElementById('ready-message').style.display = 'none';
             document.getElementById('quiz-section').style.display = 'block';
-            document.getElementById('next-question').style.display = 'none';
+            document.getElementById('next-question').style.display = 'none'; // 初期は非表示
             document.getElementById('quiz').textContent = message.question;
             document.getElementById('example').textContent = message.example; // 例文を表示
             document.getElementById('responses').innerHTML = ''; // 回答ログをリセット
@@ -76,7 +76,7 @@ function connectWebSocket() {
             if (message.correct) {
                 responseElement.classList.add('correct');
                 disableInput(); // 正解したら入力を無効化
-                document.getElementById('next-question').style.display = 'block';
+                document.getElementById('next-question').style.display = 'block'; // 正答後に表示
 
                 if (message.user === user) {
                     showAttack();
@@ -137,6 +137,7 @@ function sendAnswer() {
 function readyForNextQuestion() {
     if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'readyForNextQuestion', user: user }));
+        document.getElementById('next-question').style.display = 'none'; // ボタンがクリックされたら非表示にする
     }
 }
 
@@ -146,6 +147,7 @@ function startQuiz() {
         console.log(`Starting quiz for user: ${user}`);
         document.getElementById('user-section').style.display = 'none';
         document.getElementById('waiting-message').style.display = 'block';
+        showSpinner(); // スピナーを表示
 
         // GO効果音を再生
         document.getElementById('go-sound').play();
@@ -159,8 +161,6 @@ function startQuiz() {
         alert('Please enter a username');
     }
 }
-
-
 
 function cancel() {
     alert('Canceled');
@@ -189,6 +189,7 @@ function startCountdownForNext() {
     setTimeout(() => {
         document.getElementById('ready-message').style.display = 'none';
         document.getElementById('quiz-section').style.display = 'block';
+        document.getElementById('next-question').style.display = 'none'; // カウントダウン中は非表示にする
     }, 6000);  // 6秒後に画面を切り替える
 }
 
@@ -298,4 +299,12 @@ function restartGame() {
     document.getElementById('final-image').style.display = 'none';
     user = '';
     ws.close();
+}
+
+function showSpinner() {
+    document.getElementById('loading-spinner').style.display = 'block';
+}
+
+function hideSpinner() {
+    document.getElementById('loading-spinner').style.display = 'none';
 }

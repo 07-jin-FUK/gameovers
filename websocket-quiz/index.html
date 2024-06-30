@@ -23,6 +23,7 @@
         </div>
 
         <div id="waiting-message">
+            <div id="loading-spinner" class="spinner"></div>
             <p>対戦相手を募集しています...</p>
         </div>
 
@@ -63,7 +64,7 @@
 
                 <div id="next-question">
                     <p>次の問題へ進むボタンを押してください</p>
-                    <button onclick="readyForNextQuestion()">次の問題へ進む</button>
+                    <button id="next-question-button" onclick="readyForNextQuestion()">次の問題へ進む</button>
                     <p id="waiting-next"></p>
                 </div>
 
