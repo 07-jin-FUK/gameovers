@@ -1,3 +1,5 @@
+let victoryDisplayed = false;
+
 window.onload = function () {
     const introGif = document.getElementById('introGif');
     const contentContainer = document.getElementById('content-container');
@@ -78,7 +80,9 @@ function connectWebSocket() {
             if (message.correct) {
                 responseElement.classList.add('correct');
                 disableInput(); // 正解したら入力を無効化
-                document.getElementById('next-question').style.display = 'block'; // 正答後に表示
+                if (!victoryDisplayed) {
+                    document.getElementById('next-question').style.display = 'block'; // 正答後に表示
+                }
 
                 // 正解の効果音を再生
                 document.getElementById('correct-sound').play();
@@ -105,13 +109,12 @@ function connectWebSocket() {
             document.getElementById('quiz-section').style.display = 'none';
             document.getElementById('ready-message').style.display = 'none';
             document.getElementById('next-question').style.display = 'none';
-            document.getElementById('end-game').style.display = 'block';
-            document.getElementById('winner-message').textContent = `${message.winner} WIN!`;
-            updateHP(message.hp); // 最終HPを更新
             showVictoryCutin(); // 勝利カットインを表示
         }
         if (message.type === 'showNextButton') {
-            document.getElementById('next-question').style.display = 'block';
+            if (!victoryDisplayed) {
+                document.getElementById('next-question').style.display = 'block';
+            }
         }
         if (message.type === 'waitingForNext') {
             document.getElementById('waiting-next').textContent = `${message.usersReady.join(", ")} は待機済みです`;
@@ -147,6 +150,7 @@ function readyForNextQuestion() {
     if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'readyForNextQuestion', user: user }));
         document.getElementById('next-question').style.display = 'none'; // ボタンがクリックされたら非表示にする
+        document.getElementById('waiting-next').textContent = `${user} は待機済みです`; // 対戦相手の返事を待つメッセージを表示
     }
 }
 
@@ -248,7 +252,7 @@ function showReadyImage() {
 }
 
 function showAttack() {
-    if (!document.getElementById('victory').classList.contains('show')) { // 勝利カットインが表示されていない場合のみ実行
+    if (!victoryDisplayed) { // 勝利カットインが表示されていない場合のみ実行
         const attackElement = document.getElementById('attack');
         const cutinBackground = document.getElementById('cutin-background');
         cutinBackground.classList.add('show');
@@ -267,7 +271,7 @@ function showAttack() {
 }
 
 function showDamage() {
-    if (!document.getElementById('victory').classList.contains('show')) { // 勝利カットインが表示されていない場合のみ実行
+    if (!victoryDisplayed) { // 勝利カットインが表示されていない場合のみ実行
         const damageElement = document.getElementById('damage');
         const cutinBackground = document.getElementById('cutin-background');
         cutinBackground.classList.add('show');
@@ -289,12 +293,13 @@ function showDamage() {
 function showVictoryCutin() {
     const victoryElement = document.getElementById('victory');
     victoryElement.classList.add('show');
+    victoryDisplayed = true; // フラグを設定
 
     // 勝利カットイン効果音を再生
     document.getElementById('victory-sound1').play();
     setTimeout(() => {
         document.getElementById('victory-sound2').play();
-    }, 2000); // 2秒後に2つ目の効果音を再生
+    }, 4000); // 5秒後に2つ目の効果音を再生
 
     setTimeout(() => {
         victoryElement.classList.remove('show');
@@ -304,11 +309,16 @@ function showVictoryCutin() {
         // Final-imageが表示されるタイミングで効果音を再生
         document.getElementById('final-sound').play();
 
+        // 3秒後にモーダルを表示
+        setTimeout(() => {
+            document.getElementById('end-game').classList.remove('hidden');
+        }, 3000);
+
     }, 7000); // 7秒後に非表示にする
 }
 
 function restartGame() {
-    document.getElementById('end-game').style.display = 'none';
+    document.getElementById('end-game').classList.add('hidden');
     document.getElementById('responses').innerHTML = '';
     document.querySelector('#my-hp .hp-bar-inner').style.width = '100%';
     document.querySelector('#opponent-hp .hp-bar-inner').style.width = '100%';
@@ -317,8 +327,13 @@ function restartGame() {
     document.getElementById('user-section').style.display = 'block';
     document.getElementById('final-background').style.display = 'none';
     document.getElementById('final-image').style.display = 'none';
+    victoryDisplayed = false; // フラグをリセット
     user = '';
     ws.close();
+}
+
+function returnToTitle() {
+    window.location.href = 'your-title-url.html'; // タイトル画面のURLにリダイレクト
 }
 
 function showSpinner() {
