@@ -1,39 +1,40 @@
 <!DOCTYPE html>
 <html lang="ja">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>gameOvers</title>
 
     <style>
-        html,
-        body {
-            padding: 0;
-            margin: 0;
-            height: 100%;
-        }
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+      }
 
-        body {
-            display: flex;
-            flex-direction: column;
-            --form-height: 6rem;
-            --form-content-size: 2rem;
-        }
+      body {
+        display: flex;
+        /* flex-direction: column; */
+        /* --form-height: 6rem;
+            --form-content-size: 2rem; */
+      }
+      body,
+      canvas {
+        background-color: white;
+      }
+      canvas {
+        width: 100%;
+        object-fit: contain;
+        image-rendering: crisp-edges;
+        image-rendering: pixelated;
+      }
 
-        body,
-        canvas {
-            width: 100%;
-            object-fit: contain;
-            image-rendering: crisp-edges;
-            image-rendering: pixelated;
-        }
+      img {
+        display: none;
+      }
 
-        img {
-            display: none;
-        }
-
-        form {
+      /* form {
             display: flex;
             flex-wrap: wrap;
             width: 100%;
@@ -59,16 +60,16 @@
 
         label {
             color: whitesmoke;
-        }
+        } */
     </style>
 
     <!-- src="./src/index.js" -->
-    <script type="module" src="/index.js"></script>
-</head>
+    <script type="module" src="./index.js"></script>
+  </head>
 
-<body>
-
-    <form>
+  <body>
+    <p>おはようございます</p>
+    <!-- <form>
         <div>
             <input id="ken" type="checkbox" name="fighter" value="Ken" />
             <label for="ken">Ken</label>
@@ -81,13 +82,12 @@
         <select name="state" id="state-dropdown"></select>
         <button type="submit">Transition!</button>
 
-    </form>
-
-    <canvas width="384" height="224"></canvas>
+    </form> -->
+    <main>
+      <canvas width="384" height="224"></canvas>
+    </main>
     <img src="./images/ken.png" alt="ken" />
     <img src="./images/ryu.png" alt="ryu" />
     <img src="./images/background.png" alt="background" />
-
-</body>
-
+  </body>
 </html>

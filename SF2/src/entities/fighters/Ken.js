@@ -106,3 +106,82 @@ export class Ken extends Fighter {
         this.gravity = 1000;
     }
 }
+
+//ここから
+
+const keys = {
+  player1: {
+    left: false,
+    right: false,
+    attack: false,
+  },
+  player2: {
+    left: false,
+    right: false,
+    attack: false,
+  },
+};
+
+document.addEventListener("keydown", (event) => {
+  switch (event.key) {
+    case "a":
+      keys.player1.left = true;
+      break;
+    case "d":
+      keys.player1.right = true;
+      break;
+    case "w":
+      keys.player1.attack = true;
+      break;
+    case "ArrowLeft":
+      keys.player2.left = true;
+      break;
+    case "ArrowRight":
+      keys.player2.right = true;
+      break;
+    case "ArrowUp":
+      keys.player2.attack = true;
+      break;
+  }
+});
+
+document.addEventListener("keyup", (event) => {
+  switch (event.key) {
+    case "a":
+      keys.player1.left = false;
+      break;
+    case "d":
+      keys.player1.right = false;
+      break;
+    case "w":
+      keys.player1.attack = false;
+      break;
+    case "ArrowLeft":
+      keys.player2.left = false;
+      break;
+    case "ArrowRight":
+      keys.player2.right = false;
+      break;
+    case "ArrowUp":
+      keys.player2.attack = false;
+      break;
+  }
+});
+
+function detectCollision(player1, player2) {
+  if (
+    player1.attacking &&
+    player1.x + player1.width >= player2.x &&
+    player1.x <= player2.x + player2.width
+  ) {
+    player2.health -= 10;
+  }
+  if (
+    player2.attacking &&
+    player2.x <= player1.x + player1.width &&
+    player2.x + player2.width >= player1.x
+  ) {
+    player1.health -= 10;
+  }
+}
+
