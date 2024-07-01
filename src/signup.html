@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Fight?｜サインアップ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+            cursor: pointer;
+        }
+
+        .logo {
+            width: 720px;
+            margin-bottom: 50px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .input-field {
+            margin: 10px 0;
+            padding: 10px;
+            width: 300px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .submit-button {
+            margin: 20px 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            align-self: center;
+        }
+
+        .label-img {
+            height: 38px;
+            /* 高さを38pxに固定 */
+        }
+
+        .password-img,
+        .playername-img {
+            height: 36px;
+            /* 高さを36pxに固定 */
+        }
+
+        .input-field,
+        .password-img,
+        .playername-img {
+            margin-top: 20px;
+        }
+
+        .submit-button img {
+            width: 160px;
+            /* 幅を160pxに固定 */
+        }
+
+        .back-button {
+            margin-top: 20px;
+            width: 66px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <img src="../images/logo.png" alt="ロゴ" class="logo">
+
+    <form action="signup_success.html" method="post">
+        <img src="../images/text-emailAddress.png" alt="Eメールアドレス" class="label-img">
+        <input type="email" name="email" placeholder="user@example.com" class="input-field" required>
+        <img src="../images/text-playername.png" alt="プレイヤー名" class="playername-img">
+        <input type="text" name="playername" placeholder="プレイヤー名" class="input-field" required>
+        <img src="../images/text-password.png" alt="パスワード" class="password-img">
+        <input type="password" name="password" placeholder="パスワード" class="input-field" required>
+        <button type="submit" class="submit-button" id="signup-button">
+            <img src="../images/text-signup-button.png" alt="サインアップする">
+        </button>
+    </form>
+
+    <img src="../images/text-back-button.png" alt="戻る" class="back-button" id="back-button">
+
+    <audio id="hover-sound" src="../sounds/hover.mp3" preload="auto"></audio>
+    <audio id="click-sound" src="../sounds/click.mp3" preload="auto"></audio>
+    <audio id="bgm" src="../sounds/login-signup-bgm.mp3" preload="auto" loop></audio>
+
+    <script>
+        const signupButton = document.getElementById('signup-button');
+        const backButton = document.getElementById('back-button');
+        const hoverSound = document.getElementById('hover-sound');
+        const clickSound = document.getElementById('click-sound');
+        const bgm = document.getElementById('bgm');
+
+        document.addEventListener('click', function () {
+            if (bgm.paused) {
+                bgm.volume = 0.4;
+                bgm.play();
+            }
+        }, { once: true });
+
+        signupButton.addEventListener('mouseover', function () {
+            hoverSound.currentTime = 0;
+            hoverSound.play();
+        });
+
+        signupButton.addEventListener('click', function () {
+            clickSound.currentTime = 0;
+            clickSound.play();
+        });
+
+        backButton.addEventListener('mouseover', function () {
+            hoverSound.currentTime = 0;
+            hoverSound.play();
+        });
+
+        backButton.addEventListener('click', function () {
+            clickSound.currentTime = 0;
+            clickSound.play();
+            setTimeout(function () {
+                window.location.href = 'home.html';
+            }, 200);
+        });
+    </script>
+
+</body>
+
+</html>
