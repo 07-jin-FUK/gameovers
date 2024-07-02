@@ -31,13 +31,26 @@ window.onload = function () {
   canvasEl.height = GameViewport.HEIGHT;
 
   const ken = document.querySelector("img");
+
+  const position = {
+    x: 0,
+    y: 0,
+  };
+  let velocity = 4;
+
   function frame() {
+    position.x += velocity;
+    if (position.x > GameViewport.WIDTH || position.x < 0) {
+      velocity = -velocity;
+    }
+
+    context.clearRect(0, 0, GameViewport.WIDTH, GameViewport.HEIGHT);
     context.strokeStyle = "yellow";
     context.moveTo(0, 0);
     context.lineTo(GameViewport.WIDTH, GameViewport.HEIGHT);
     context.stroke();
 
-    context.drawImage(ken, 0, 0);
+    context.drawImage(ken, position.x, position.y);
 
     window.requestAnimationFrame(frame);
   }
