@@ -30,9 +30,12 @@ window.onload = function () {
   canvasEl.width = GameViewport.WIDTH;
   canvasEl.height = GameViewport.HEIGHT;
 
+  const ken = document.querySelector("img");
+
   context.strokeStyle = "yellow";
   context.moveTo(0, 0);
   context.lineTo(GameViewport.WIDTH, GameViewport.HEIGHT);
   context.stroke();
+  context.drawImage(ken, 0, 0);
   console.log(context);
 };
