@@ -5,262 +5,114 @@
     <meta charset="UTF-8">
     <title>WebSocket Quiz</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <style>
-        #quiz-section {
-            display: none;
-        }
-
-        #waiting-message {
-            display: none;
-        }
-
-        #ready-message {
-            display: none;
-        }
-
-        .correct {
-            color: red;
-            display: inline;
-        }
-
-        .correct::after {
-            content: ' 〇';
-        }
-
-        .incorrect {
-            color: blue;
-        }
-
-        input[disabled] {
-            background-color: lightgray;
-        }
-
-        #end-game {
-            display: none;
-        }
-
-        #scores {
-            display: none;
-        }
-
-        #next-question {
-            display: none;
-        }
-
-        .hp-bar {
-            height: 20px;
-            background-color: green;
-            text-align: center;
-            color: white;
-        }
-    </style>
+    <link href='https://fonts.googleapis.com/css?family=Press+Start 2P' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <h1>Quiz Time!</h1>
+    <img id="introGif" src="./node_modules/Img/start.gif" alt="Intro GIF">
+    <div id="content-container">
+        <div id="user-section">
+            <img src="./node_modules/Img/hado.jpg" alt=""><br>
+            <input type="text" id="username" placeholder="名前を入力してください">
+            <div class="yoko">
+                <button onclick="startQuiz()">GO</button>
+                <button onclick="cancel()">STOP</button>
+            </div>
+        </div>
 
-    <div id="user-section">
-        <input type="text" id="username" placeholder="Enter your username">
-        <button onclick="startQuiz()">Start Quiz</button>
-    </div>
+        <div id="waiting-message">
+            <div id="loading-spinner" class="spinner"></div>
+            <p>対戦相手を募集しています...</p>
+        </div>
 
-    <div id="waiting-message">
-        <p>対戦相手を募集しています...</p>
-    </div>
+        <div id="match-found-message">
+            <p>対戦相手が見つかりました。まもなく試合が始まります。</p>
+        </div>
 
-    <div id="ready-message">
-        <p>対戦相手が揃いました。問題を開始します...</p>
-        <p id="countdown"></p>
-    </div>
+        <div id="main-content" class="hidden">
+            <div id="header">
+                <div id="my-hp" class="hp-bar my-hp-bar">
+                    <div class="hp-bar-inner"></div>
+                </div>
+                <div class="countdown-container">
+                    <div id="countdown"></div>
+                </div>
+                <div id="opponent-hp" class="hp-bar opponent-hp-bar">
+                    <div class="hp-bar-inner"></div>
+                </div>
+            </div>
 
-    <div id="quiz-section">
-        <div id="quiz"></div>
-        <input type="text" id="answer" placeholder="Type your answer here">
-        <button onclick="sendAnswer()">Submit</button>
-        <div id="responses"></div>
-        <div id="scores"></div>
-        <div id="hp-bars"></div>
-    </div>
+            <div id="quiz-container">
+                <h1>Fight!</h1>
 
-    <div id="next-question">
-        <p>次の問題へ進むボタンを押してください</p>
-        <button onclick="readyForNextQuestion()">次の問題へ進む</button>
-        <p id="waiting-next"></p>
-    </div>
+                <div id="ready-message">
+                    <p>問題を開始します...</p>
+                    <p id="countdown"></p>
+                </div>
 
-    <div id="end-game">
-        <p id="winner-message"></p>
-        <button onclick="restartGame()">Restart Game</button>
-    </div>
+                <div id="quiz-section">
+                    <div id="quiz"></div>
+                    <div id="example"></div> <!-- 例文を表示する要素 -->
+                    <div id="answer-section">
+                        <input type="text" id="answer" placeholder="Type your answer here">
+                        <button id="answer-button" onclick="sendAnswer()">ATTACK!</button>
+                    </div>
+                    <div id="responses"></div>
+                </div>
 
-    <script>
-        let ws;
-        let user;
+                <div id="next-question">
+                    <p>次の問題へ進むボタンを押してください</p>
+                    <button id="next-question-button" onclick="readyForNextQuestion()">次の問題へ進む...</button>
+                    <p id="waiting-next"></p>
+                </div>
 
-        function connectWebSocket() {
-            ws = new WebSocket('ws://localhost:8081');
+                <div id="cutin-background" class="cutin-background"></div>
 
-            ws.onopen = () => {
-                console.log('Connected to WebSocket server');
-                ws.send(JSON.stringify({ type: 'register', user: user }));
-            };
+                <div id="ready" class="ready">
+                    <img src="./node_modules/Img/here.jpg" alt="Ready Image">
+                </div>
 
-            ws.onmessage = (event) => {
-                const message = JSON.parse(event.data);
-                console.log('Received message from server:', message);
+                <div id="attack" class="attack">
+                    <p>YOUR ATTACK</p>
+                    <img src="./node_modules/Img/ryoryo.png" alt="Attack Image">
+                </div>
 
-                if (message.type === 'readyToStart') {
-                    document.getElementById('waiting-message').style.display = 'none';
-                    document.getElementById('ready-message').style.display = 'block';
-                    startCountdown();
-                }
-                if (message.type === 'startQuiz') {
-                    document.getElementById('ready-message').style.display = 'none';
-                    document.getElementById('quiz-section').style.display = 'block';
-                    document.getElementById('next-question').style.display = 'none';
-                    document.getElementById('quiz').textContent = message.question;
-                    document.getElementById('responses').innerHTML = ''; // 回答ログをリセット
-                    enableInput(); // 入力を有効化
-                }
-                if (message.type === 'answer') {
-                    const responseElement = document.createElement('p');
-                    responseElement.innerHTML = `<strong>${message.user}:</strong> ${message.answer}`;
-                    if (message.correct) {
-                        responseElement.classList.add('correct');
-                        disableInput(); // 正解したら入力を無効化
-                        document.getElementById('next-question').style.display = 'block';
-                    } else {
-                        responseElement.classList.add('incorrect');
-                    }
-                    document.getElementById('responses').appendChild(responseElement);
-                }
-                if (message.type === 'updateScores') {
-                    // スコア表示を更新
-                    updateScores(message.scores);
-                    // HP表示を更新
-                    updateHP(message.hp);
-                }
-                if (message.type === 'endGame') {
-                    document.getElementById('quiz-section').style.display = 'none';
-                    document.getElementById('ready-message').style.display = 'none';
-                    document.getElementById('next-question').style.display = 'none';
-                    document.getElementById('end-game').style.display = 'block';
-                    document.getElementById('winner-message').textContent = `${message.winner} has won the game!`;
-                    updateScores(message.scores); // 最終スコアを更新
-                    updateHP(message.hp); // 最終HPを更新
-                }
-                if (message.type === 'showNextButton') {
-                    document.getElementById('next-question').style.display = 'block';
-                }
-                if (message.type === 'waitingForNext') {
-                    document.getElementById('waiting-next').textContent = `Waiting for ${message.usersReady.join(", ")} to proceed...`;
-                }
-                if (message.type === 'startNextQuiz') {
-                    startCountdownForNext(); // 次の問題のカウントダウンを開始
-                }
-            };
+                <div id="damage" class="damage">
+                    <p>YOUR DAMAGE</p>
+                    <img src="./node_modules/Img/ken2.png" alt="Damage Image">
+                </div>
 
-            ws.onclose = () => {
-                console.log('WebSocket connection closed. Reconnecting...');
-                setTimeout(connectWebSocket, 1000);
-            };
+                <div id="victory" class="cutin-background victory-background"></div> <!-- 勝利カットインを追加 -->
+                <div id="final-background" style="display: none;"></div>
+                <img id="final-image" src="./node_modules/Img/KO4.png"
+                    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
 
-            ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
-            };
-        }
+                <div id="end-game" class="modal hidden">
+                    <div class="modal-content">
+                        <p id="winner-message"></p>
+                        <button onclick="restartGame()">再戦する</button>
+                        <button onclick="returnToTitle()">タイトルに戻る</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        function sendAnswer() {
-            const answerInput = document.getElementById('answer');
-            const answer = answerInput.value;
+        <script src="script.js"></script>
 
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'answer', user: user, answer: answer }));
-                answerInput.value = '';
-            } else {
-                console.error('WebSocket is not open. Ready state: ' + ws.readyState);
-            }
-        }
-
-        function readyForNextQuestion() {
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'readyForNextQuestion', user: user }));
-            }
-        }
-
-        function startQuiz() {
-            user = document.getElementById('username').value;
-            if (user) {
-                console.log(`Starting quiz for user: ${user}`);
-                document.getElementById('user-section').style.display = 'none';
-                document.getElementById('waiting-message').style.display = 'block';
-                connectWebSocket();
-            } else {
-                alert('Please enter a username');
-            }
-        }
-
-        function startCountdown() {
-            let countdown = 5;
-            const countdownElement = document.getElementById('countdown');
-            countdownElement.textContent = countdown; // 初期値の設定
-            const interval = setInterval(() => {
-                countdown--;
-                countdownElement.textContent = countdown;
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                }
-            }, 1000);
-        }
-
-        function startCountdownForNext() {
-            document.getElementById('quiz-section').style.display = 'none';
-            document.getElementById('ready-message').style.display = 'block';
-            startCountdown(); // カウントダウンを開始
-            setTimeout(() => {
-                document.getElementById('ready-message').style.display = 'none';
-                document.getElementById('quiz-section').style.display = 'block';
-            }, 5000);
-        }
-
-        function disableInput() {
-            document.getElementById('answer').disabled = true;
-            document.querySelector('button[onclick="sendAnswer()"]').disabled = true;
-        }
-
-        function enableInput() {
-            document.getElementById('answer').disabled = false;
-            document.querySelector('button[onclick="sendAnswer()"]').disabled = false;
-        }
-
-        function updateScores(scores) {
-            const scoresElement = document.getElementById('scores');
-            scoresElement.innerHTML = '<h3>Scores:</h3>';
-            scores.forEach(([user, score]) => {
-                scoresElement.innerHTML += `<p><strong>${user}:</strong> ${score}</p>`;
-            });
-            scoresElement.style.display = 'block';
-        }
-
-        function updateHP(hp) {
-            const hpBarsElement = document.getElementById('hp-bars');
-            hpBarsElement.innerHTML = '<h3>HP:</h3>';
-            hp.forEach(([user, hp]) => {
-                const hpBar = `<div class="hp-bar" style="width: ${hp * 20}%;"></div>`;
-                hpBarsElement.innerHTML += `<p><strong>${user}:</strong> ${hpBar}</p>`;
-            });
-        }
-
-        function restartGame() {
-            document.getElementById('end-game').style.display = 'none';
-            document.getElementById('responses').innerHTML = '';
-            document.getElementById('scores').innerHTML = '';
-            document.getElementById('hp-bars').innerHTML = '';
-            document.getElementById('user-section').style.display = 'block';
-            user = '';
-            ws.close();
-        }
-    </script>
+        <audio id="go-sound" src="./node_modules/Bgm/go.mp3"></audio>
+        <audio id="countdown-sound" src="./node_modules/Bgm/count.mp3"></audio>
+        <audio id="state3-bgm" src="./node_modules/Bgm/taiki.mp3" loop></audio>
+        <audio id="state4-bgm" src="./node_modules/Bgm/sentou.mp3" loop></audio>
+        <audio id="attack-sound" src="./node_modules/Bgm/attack.mp3"></audio>
+        <audio id="damage-sound" src="./node_modules/Bgm/damage.mp3"></audio>
+        <audio id="victory-sound" src="./node_modules/Bgm/win.mp3"></audio>
+        <audio id="your-new-sound" src="./node_modules/Bgm/saa.mp3"></audio>
+        <audio id="correct-sound" src="./node_modules/Bgm/kurae.mp3"></audio>
+        <audio id="incorrect-sound" src="./node_modules/Bgm/gu.mp3"></audio>
+        <audio id="victory-sound1" src="./node_modules/Bgm/ougi.mp3"></audio>
+        <audio id="victory-sound2" src="./node_modules/Bgm/ぐああ.mp3"></audio>
+        <audio id="final-sound" src="./node_modules/Bgm/FINI.mp3"></audio>
 </body>
 
 </html>

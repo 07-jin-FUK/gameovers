@@ -7,15 +7,16 @@ let connectedUsers = new Map(); // ユーザーとスコアを管理するMap
 let userHP = new Map(); // ユーザーとHPを管理するMap
 let readyForNextQuestion = new Set();
 const questions = [
-    { question: "What's the capital of France?", answer: "Paris" },
-    { question: "What's 2 + 2?", answer: "4" },
-    { question: "What's the capital of Japan?", answer: "Tokyo" },
-    { question: "What's 3 x 3?", answer: "9" },
-    { question: "What's the color of the sky?", answer: "Blue" },
-    { question: "What's the capital of Germany?", answer: "Berlin" },
-    { question: "What's 5 + 7?", answer: "12" },
-    { question: "What's the capital of Italy?", answer: "Rome" },
-    { question: "What's 6 x 6?", answer: "36" }
+    { question: "複数のテーブルから関連する列を基にデータを取得するために使用されるSQL句は何ですか？", example: "SELECT * FROM table1 INNER ____ table2 ON table1.id = table2.id;", answer: "JOIN" },
+    { question: "テーブル内の行数を数えるために使用されるSQL関数は何ですか？", example: "SELECT ____(*) FROM table1;", answer: "COUNT" },
+    { question: "レコードをフィルタリングするために使用されるSQL句は何ですか？", example: "SELECT * FROM table1 ____ condition;", answer: "WHERE" },
+    { question: "列内の最大値を見つけるために使用されるSQL関数は何ですか？", example: "SELECT ____(column_name) FROM table1;", answer: "MAX" },
+    { question: "テーブルに新しいレコードを挿入するために使用されるSQL文は何ですか？", example: "____ ____ table1 (column1, column2) VALUES (value1, value2);", answer: "INSERT INTO" },
+    { question: "テーブルからレコードを削除するために使用されるSQL文は何ですか？", example: "____ FROM table1 WHERE condition;", answer: "DELETE" },
+    { question: "数値列の平均値を返すために使用されるSQL関数は何ですか？", example: "SELECT ____(column_name) FROM table1;", answer: "AVG" },
+    { question: "結果セットを並べ替えるために使用されるSQL句は何ですか？", example: "SELECT * FROM table1 ____ column_name ASC;", answer: "ORDER BY" },
+    { question: "テーブル内の既存のレコードを更新するために使用されるSQL文は何ですか？", example: "____ table1 SET column1 = value1 WHERE condition;", answer: "UPDATE" },
+    { question: "数値列の値を合計するために使用されるSQL関数は何ですか？", example: "SELECT ____(column_name) FROM table1;", answer: "SUM" }
 ];
 const maxHP = 5; // 最大HP
 let quizActive = false;
@@ -45,15 +46,17 @@ wss.on('connection', ws => {
             if (connectedUsers.size >= 2 && !quizActive) {
                 console.log('Notifying clients to start quiz');
                 quizActive = true;
+                const initialScores = Array.from(connectedUsers.entries());
+                const initialHP = Array.from(userHP.entries());
                 clients.forEach(client => {
                     if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({ type: 'readyToStart' }));
+                        client.send(JSON.stringify({ type: 'readyToStart', initialScores, initialHP }));
                     }
                 });
 
                 setTimeout(() => {
                     sendQuestion();
-                }, 5000);
+                }, 9000);
             }
         } else if (parsedMessage.type === 'answer' && quizActive) {
             console.log(`Received answer from ${parsedMessage.user}: ${parsedMessage.answer}`);
@@ -130,13 +133,16 @@ wss.on('connection', ws => {
                 });
                 setTimeout(() => {
                     sendQuestion();
-                }, 5000); // 5秒後に次の問題を開始
+                }, 6000); // 6秒後に次の問題を開始
             }
             clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
                     client.send(JSON.stringify({ type: 'waitingForNext', usersReady: Array.from(readyForNextQuestion) }));
                 }
             });
+        } else if (parsedMessage.type === 'startQuizRequest') {
+            console.log('startQuizRequest received'); // デバッグ用ログ
+            // sendQuestion();
         }
     });
 
@@ -147,8 +153,10 @@ wss.on('connection', ws => {
 });
 
 function sendQuestion() {
+    console.log('sendQuestion called'); // デバッグ用ログ
     // 新しい質問を見つける
     let availableQuestions = questions.filter((_, index) => !askedQuestions.has(index));
+    console.log('availableQuestions:', availableQuestions.length); // デバッグ用ログ
     if (availableQuestions.length === 0) {
         console.log('All questions have been asked.');
         resetGame();
@@ -157,16 +165,18 @@ function sendQuestion() {
     let newQuestionIndex = Math.floor(Math.random() * availableQuestions.length);
     currentQuestionIndex = questions.indexOf(availableQuestions[newQuestionIndex]);
     askedQuestions.add(currentQuestionIndex);
+    console.log('New question index:', currentQuestionIndex); // デバッグ用ログ
 
     const question = questions[currentQuestionIndex];
     clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'startQuiz', question: question.question }));
+            client.send(JSON.stringify({ type: 'startQuiz', question: question.question, example: question.example }));
         }
     });
 }
 
 function resetGame() {
+    console.log('resetGame called'); // デバッグ用ログ
     // ゲームのリセット、ユーザーのスコアもクリアする
     connectedUsers.clear();
     userHP.clear();
