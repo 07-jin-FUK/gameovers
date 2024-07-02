@@ -1,6 +1,6 @@
-import { Ken } from "./ken.js";
-import { Stage } from "./stage.js";
-import { Ryu } from "./ryu.js";
+import { Ken } from "./entities/fighters/Ken.js";
+import { Stage } from "./entities/Stage.js";
+import { Ryu } from "./entities/fighters/Ryu.js";
 // const GameViewport = {
 //     WIDTH: 384,
 //     HEIGHT: 224,
