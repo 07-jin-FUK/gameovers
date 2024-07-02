@@ -31,11 +31,16 @@ window.onload = function () {
   canvasEl.height = GameViewport.HEIGHT;
 
   const ken = document.querySelector("img");
+  function frame() {
+    context.strokeStyle = "yellow";
+    context.moveTo(0, 0);
+    context.lineTo(GameViewport.WIDTH, GameViewport.HEIGHT);
+    context.stroke();
 
-  context.strokeStyle = "yellow";
-  context.moveTo(0, 0);
-  context.lineTo(GameViewport.WIDTH, GameViewport.HEIGHT);
-  context.stroke();
-  context.drawImage(ken, 0, 0);
+    context.drawImage(ken, 0, 0);
+
+    window.requestAnimationFrame(frame);
+  }
+  window.requestAnimationFrame(frame);
   console.log(context);
 };
