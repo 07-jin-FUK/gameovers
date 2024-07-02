@@ -30,7 +30,7 @@ window.onload = function () {
   canvasEl.width = GameViewport.WIDTH;
   canvasEl.height = GameViewport.HEIGHT;
 
-  const ken = document.querySelector("img");
+  const [ken, background] = document.querySelectorAll("img");
 
   const position = {
     x: 0,
@@ -40,11 +40,13 @@ window.onload = function () {
 
   function frame() {
     position.x += velocity;
-    if (position.x > GameViewport.WIDTH || position.x < 0) {
+    if (position.x > GameViewport.WIDTH - ken.width || position.x < 0) {
       velocity = -velocity;
     }
 
-    context.clearRect(0, 0, GameViewport.WIDTH, GameViewport.HEIGHT);
+    // context.clearRect(0, 0, GameViewport.WIDTH, GameViewport.HEIGHT);
+    context.drawImage(background, 0, 0);
+
     context.strokeStyle = "yellow";
     context.moveTo(0, 0);
     context.lineTo(GameViewport.WIDTH, GameViewport.HEIGHT);
@@ -55,5 +57,5 @@ window.onload = function () {
     window.requestAnimationFrame(frame);
   }
   window.requestAnimationFrame(frame);
-  console.log(context);
+  // console.log(context);
 };
