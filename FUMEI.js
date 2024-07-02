@@ -13,7 +13,7 @@ if (this.control.isUp) {
     }
 }
 
-// しゃがみ込みたい場合
+// しゃがみ込みたい
 if (this.control.isDown) {
     if (!this.player.isCrouching) {
         this.player.isCrouching = true;
