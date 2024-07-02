@@ -1,5 +1,5 @@
-// import { StreetFighterGame } from "./StreetFighterGame.js";
-
+import { drawKen, updateKen } from "./ken.js";
+import { drawBackground } from "./stage.js";
 // const GameViewport = {
 //     WIDTH: 384,
 //     HEIGHT: 224,
@@ -27,35 +27,17 @@ const GameViewport = {
 window.onload = function () {
   const canvasEl = document.querySelector("canvas");
   const context = canvasEl.getContext("2d");
+
   canvasEl.width = GameViewport.WIDTH;
   canvasEl.height = GameViewport.HEIGHT;
 
-  const [ken, background] = document.querySelectorAll("img");
-
-  const position = {
-    x: 0,
-    y: 0,
-  };
-  let velocity = 4;
-
   function frame() {
-    position.x += velocity;
-    if (position.x > GameViewport.WIDTH - ken.width || position.x < 0) {
-      velocity = -velocity;
-    }
+    updateKen(context);
 
-    // context.clearRect(0, 0, GameViewport.WIDTH, GameViewport.HEIGHT);
-    context.drawImage(background, 0, 0);
-
-    context.strokeStyle = "yellow";
-    context.moveTo(0, 0);
-    context.lineTo(GameViewport.WIDTH, GameViewport.HEIGHT);
-    context.stroke();
-
-    context.drawImage(ken, position.x, position.y);
+    drawBackground(context);
+    drawKen(context);
 
     window.requestAnimationFrame(frame);
   }
   window.requestAnimationFrame(frame);
-  // console.log(context);
 };
