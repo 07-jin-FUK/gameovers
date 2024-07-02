@@ -32,6 +32,6 @@ window.onload = function () {
   canvasEl.height = 224;
 
   canvasEl.style.width = `${GameViewport.WIDTH * GameViewport.SCALE}px`;
-  canvasEl.style.height = `${GameViewport.HEIGHT * GameViewport.SCALE}`;
+  canvasEl.style.height = `${GameViewport.HEIGHT * GameViewport.SCALE}px`;
   console.log(context);
 };
