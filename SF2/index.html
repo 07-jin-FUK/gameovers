@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gameOvers</title>
+
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+      }
+
+      body {
+        background-color: black;
+        /* display: flex;
+            flex-direction: column;
+            --form-height: 6rem;
+            --form-content-size: 2rem; */
+      }
+
+      canvas {
+        background-color: yellow;
+        /* width: 100%;
+            object-fit: contain;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated; */
+      }
+
+      /* img {
+            display: none;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            gap: var(--form-content-size);
+            height: var(--form-content-size);
+        }
+
+        form * {
+            font-size: var(--form-content-size);
+        }
+
+        input[type="checkbox"] {
+            width: var(--form-content-size);
+            height: var(--form-content-size);
+        }
+
+        main {
+            display: flex;
+            height: calc(100% - var(--form-height));
+        }
+
+        label {
+            color: whitesmoke;
+        } */
+    </style>
+
+    <!-- src="./src/index.js" -->
+    <script defer src="./index.js"></script>
+  </head>
+
+  <body>
+    <!-- <form>
+        <div>
+            <input id="ken" type="checkbox" name="fighter" value="Ken" />
+            <label for="ken">Ken</label>
+        </div>
+        <div>
+            <input id="Ryu" type="checkbox" name="fighter" value="Ryu" />
+            <label for="Ryu">Ryu</label>
+        </div>
+
+        <select name="state" id="state-dropdown"></select>
+        <button type="submit">Transition!</button>
+
+    </form> -->
+
+    <canvas width="384" height="224"></canvas>
+    <!-- <img src="./images/ken.png" alt="ken" />
+    <img src="./images/ryu.png" alt="ryu" />
+    <img src="./images/background.png" alt="background" /> -->
+  </body>
+</html>
