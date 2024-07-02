@@ -27,7 +27,7 @@ let user;
 let userHP = new Map();
 
 function connectWebSocket() {
-    ws = new WebSocket('ws://localhost:8081');
+    ws = new WebSocket('ws://100.64.1.24:8081');
 
     ws.onopen = () => {
         console.log('Connected to WebSocket server');
