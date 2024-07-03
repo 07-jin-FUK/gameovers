@@ -209,9 +209,16 @@ export class Fighter {
   update(time, context) {
     this.position.x += this.velocity.x * this.direction * time.secondsPassed;
     this.position.y += this.velocity.y * time.secondsPassed;
-
-    this.direction = this.getDirection();
-
+    //ジャンプ時はキャラクターの向きを変えないようにする条件
+    if (
+      [
+        FighterState.IDLE,
+        FighterState.WALK_FORWARD,
+        FighterState.WALK_BACKWARD,
+      ].includes(this.currentState)
+    ) {
+      this.direction = this.getDirection();
+    }
     this.states[this.currentState].update(time, context);
     this.updateAnimation(time);
     this.updateStageContraints(context);
