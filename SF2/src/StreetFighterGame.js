@@ -4,6 +4,7 @@ import { Ryu } from "./entities/fighters/Ryu.js";
 import { FpsCounter } from "./entities/FpsCounter.js";
 import { STAGE_FLOOR } from "./constants/stage.js";
 import { FighterDirection } from "./constants/fighters.js";
+import { registerKeyboardEvents } from "./InputHandler.js";
 
 export class StreetFighterGame {
   constructor() {
@@ -56,24 +57,8 @@ export class StreetFighterGame {
     this.draw();
   }
 
-  handleFormSubmit(event) {
-    event.preventDefault();
-
-    const selectedCheckboxes = Array.from(
-      event.target.querySelectorAll("input:checked")
-    ).map((checkbox) => checkbox.value);
-
-    const options = event.target.querySelector("select");
-
-    this.fighters.forEach((fighter) => {
-      if (selectedCheckboxes.includes(fighter.name)) {
-        fighter.changeState(options.value);
-      }
-    });
-  }
-
   start() {
-    document.addEventListener("submit", this.handleFormSubmit.bind(this));
+    registerKeyboardEvents();
 
     window.requestAnimationFrame(this.frame.bind(this));
   }

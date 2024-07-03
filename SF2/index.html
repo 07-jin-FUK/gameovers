@@ -15,9 +15,6 @@
 
       body {
         display: flex;
-        flex-direction: column;
-        --form-height: 6rem;
-        --form-content-size: 2rem;
       }
 
       body,
@@ -34,57 +31,12 @@
       img {
         display: none;
       }
-
-      form {
-        display: flex;
-        flex-wrap: wrap;
-        width: 100%;
-        justify-content: center;
-        align-items: center;
-        gap: var(--form-content-size);
-        height: var(--form-content-size);
-      }
-
-      form * {
-        font-size: var(--form-content-size);
-      }
-
-      input[type="checkbox"] {
-        width: var(--form-content-size);
-        height: var(--form-content-size);
-      }
-
-      main {
-        display: flex;
-        height: calc(100% - var(--form-height));
-      }
-
-      label {
-        color: whitesmoke;
-      }
     </style>
-
-    <!-- src="./src/index.js" -->
     <script type="module" src="./src/index.js"></script>
   </head>
 
   <body>
-    <form>
-      <div>
-        <input id="ken" type="checkbox" name="fighter" value="Ken" />
-        <label for="ken">Ken</label>
-      </div>
-      <div>
-        <input id="Ryu" type="checkbox" name="fighter" value="Ryu" />
-        <label for="Ryu">Ryu</label>
-      </div>
-
-      <select name="state" id="state-dropdown"></select>
-      <button type="submit">Transition!</button>
-    </form>
     <canvas></canvas>
-
-    <!-- <canvas width="384" height="224"></canvas> -->
     <img src="./images/ken.png" alt="ken" />
     <img src="./images/ryu.png" alt="ryu" />
     <img src="./images/background.png" alt="background" />
