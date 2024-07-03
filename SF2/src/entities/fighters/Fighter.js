@@ -118,8 +118,8 @@ export class Fighter {
     if (this.animations[this.currentState][this.animationFrame][1] === -2) {
       this.changeState(FighterState.CROUCH);
     }
-   }
-  
+  }
+
   handleCrouchUpState() {
     if (this.animations[this.currentState][this.animationFrame][1] === -2) {
       this.changeState(FighterState.IDLE);
@@ -165,20 +165,6 @@ export class Fighter {
   }
 
   update(time, context) {
-    console.log(`Current State: ${this.currentState}`);
-    console.log(`State Object:`, this.states[this.currentState]);
-
-    if (!this.states[this.currentState]) {
-      console.error(`State ${this.currentState} is not defined`);
-      return;
-    }
-
-    if (typeof this.states[this.currentState].update !== "function") {
-      console.error(
-        `Update method for state ${this.currentState} is not a function`
-      );
-      return;
-    }
     this.position.x += this.velocity.x * this.direction * time.secondsPassed;
     this.position.y += this.velocity.y * time.secondsPassed;
 
