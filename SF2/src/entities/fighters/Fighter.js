@@ -20,6 +20,8 @@ export class Fighter {
 
     this.opponent;
 
+    this.pushBox = { x: 0, y: 0, width: 0, height: 0 };
+
     this.states = {
       [FighterState.IDLE]: {
         init: this.handleIdleInit.bind(this),
@@ -89,6 +91,11 @@ export class Fighter {
     this.position.x >= this.opponent.position.x
       ? FighterDirection.LEFT
       : FighterDirection.RIGHT;
+
+  getPushBox(frameKey) {
+    const [, [x, y, width, height] = [0, 0, 0, 0]] = this.frames.get(frameKey);
+    return { x, y, width, height };
+  }
 
   changeState(newState) {
     //同じ状態は２回入力できないように設定
@@ -191,13 +198,14 @@ export class Fighter {
 
   updateAnimation(time) {
     const animation = this.animations[this.currentState];
-    const [, frameDelay] = animation[this.animationFrame];
+    const [frameKey, frameDelay] = animation[this.animationFrame];
 
     if (time.previous > this.animationTimer + frameDelay) {
       this.animationTimer = time.previous;
 
       if (frameDelay > 0) {
         this.animationFrame++;
+        this.pushBox = this.getPushBox(frameKey);
       }
 
       if (this.animationFrame >= animation.length) {
@@ -225,14 +233,35 @@ export class Fighter {
   }
 
   drawDebug(context) {
+    const [frameKey] = this.animations[this.currentState][this.animationFrame];
+    const pushBox = this.getPushBox(frameKey);
+
     context.lineWidth = 1;
+
+    //PushBoxの描画
+    context.beginPath();
+    context.strokeStyle = "#55FF55";
+    context.fillStyle = "#55FF5555";
+    context.fillRect(
+      Math.floor(this.position.x + pushBox.x) + 0.5,
+      Math.floor(this.position.y + pushBox.y) + 0.5,
+      pushBox.width,
+      pushBox.height
+    );
+    context.rect(
+      Math.floor(this.position.x + pushBox.x) + 0.5,
+      Math.floor(this.position.y + pushBox.y) + 0.5,
+      pushBox.width,
+      pushBox.height
+    );
+    context.stroke();
 
     context.beginPath();
     context.strokeStyle = "white";
-    context.moveTo(this.position.x - 5, this.position.y);
-    context.lineTo(this.position.x + 4, this.position.y);
-    context.moveTo(this.position.x, this.position.y - 5);
-    context.lineTo(this.position.x, this.position.y + 4);
+    context.moveTo(this.position.x - 4, this.position.y);
+    context.lineTo(this.position.x + 5, this.position.y);
+    context.moveTo(this.position.x + 0.5, this.position.y - 5);
+    context.lineTo(this.position.x + 0.5, this.position.y + 4);
     context.stroke();
   }
 
@@ -246,7 +275,7 @@ export class Fighter {
       return;
     }
     //ここまで
-    const [[x, y, width, height], [originX, originY]] = frame;
+    const [[[x, y, width, height], [originX, originY]]] = frame;
 
     context.scale(this.direction, 1);
     context.drawImage(
