@@ -2,8 +2,8 @@ import { FighterState } from "../../constants/fighters.js";
 import { Fighter } from "./Fighter.js";
 
 export class Ken extends Fighter {
-  constructor(x, y, velocity) {
-    super("Ken", x, y, velocity);
+  constructor(x, y, direction, playerId) {
+    super("Ken", x, y, direction, playerId);
 
     this.image = document.querySelector('img[alt="ken"]');
     this.frames = new Map([
@@ -216,9 +216,27 @@ export class Ken extends Fighter {
         ],
       ],
       //しゃがみ画像3枚
-      ['crouch-1',[[875,736,58,92],[25,95]]],
-      ['crouch-2',[[794,751,76,77],[28,74]]],
-      ['crouch-3',[[717,767,72,61],[28,58]]],
+      [
+        "crouch-1",
+        [
+          [875, 736, 58, 92],
+          [25, 95],
+        ],
+      ],
+      [
+        "crouch-2",
+        [
+          [794, 751, 76, 77],
+          [28, 74],
+        ],
+      ],
+      [
+        "crouch-3",
+        [
+          [717, 767, 72, 61],
+          [28, 58],
+        ],
+      ],
     ]);
 
     this.animations = {

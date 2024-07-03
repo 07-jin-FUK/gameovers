@@ -1,10 +1,11 @@
-import { isKeyUp, isKeyDown } from "../../InputHandler.js";
+import * as control from "../../InputHandler.js";
 import { FighterState } from "../../constants/fighters.js";
 import { STAGE_FLOOR } from "../../constants/stage.js";
 
 export class Fighter {
-  constructor(name, x, y, direction) {
+  constructor(name, x, y, direction, playerId) {
     this.name = name;
+    this.playerId = playerId;
     this.image = new Image();
     this.frames = new Map();
     this.position = { x, y };
@@ -58,12 +59,12 @@ export class Fighter {
       },
       [FighterState.CROUCH]: {
         init: () => {},
-        update: () => {},
+        update: this.handleCrouchState.bind(this),
         validForm: [FighterState.CROUCH_DOWN],
       },
 
       [FighterState.CROUCH_DOWN]: {
-        init: () => {},
+        init: this.handleCrouchDownInit.bind(this),
         update: this.handleCrouchDownState.bind(this),
         validForm: [
           FighterState.IDLE,
@@ -86,11 +87,11 @@ export class Fighter {
     if (
       newState === this.currentState ||
       !this.states[newState].validForm.includes(this.currentState)
-    )
+    ) {
       return;
+    }
     this.currentState = newState;
     this.animationFrame = 0;
-
     this.states[this.currentState].init();
   }
 
@@ -115,15 +116,51 @@ export class Fighter {
     this.handleMoveInit();
   }
 
+  handleCrouchDownInit() {
+    this.handleIdleInit();
+  }
+
   handleIdleState() {
-    if (isKeyDown("ArrowLeft")) this.changeState(FighterState.WALK_BACKWARD);
-    if (isKeyDown("ArrowRight")) this.changeState(FighterState.WALK_FORWARD);
+    if (control.isUp(this.playerId)) this.changeState(FighterState.JUMP_UP);
+    if (control.isDown(this.playerId)) {
+      this.changeState(FighterState.CROUCH_DOWN);
+    }
+    if (control.isBackward(this.playerId, this.direction))
+      this.changeState(FighterState.WALK_BACKWARD);
+    if (control.isForward(this.playerId, this.direction))
+      this.changeState(FighterState.WALK_FORWARD);
   }
   handleWalkForwardState() {
-    if (isKeyUp("ArrowRight")) this.changeState(FighterState.IDLE);
+    if (!control.isForward(this.playerId, this.direction))
+      this.changeState(FighterState.IDLE);
+    if (control.isUp(this.playerId))
+      this.changeState(FighterState.JUMP_FORWARD);
+    if (control.isDown(this.playerId))
+      this.changeState(FighterState.CROUCH_DOWN);
   }
   handleWalkBackwardsState() {
-    if (isKeyUp("ArrowLeft")) this.changeState(FighterState.IDLE);
+    if (!control.isBackward(this.playerId, this.direction))
+      this.changeState(FighterState.IDLE);
+    if (control.isUp(this.playerId))
+      this.changeState(FighterState.JUMP_BACKWARD);
+    if (control.isDown(this.playerId))
+      this.changeState(FighterState.CROUCH_DOWN);
+  }
+
+  handleJumpState(time) {
+    this.velocity.y += this.gravity * time.secondsPassed;
+
+    if (this.position.y > STAGE_FLOOR) {
+      this.position.y = STAGE_FLOOR;
+      this.changeState(FighterState.IDLE);
+    }
+  }
+  w;
+
+  handleCrouchState() {
+    if (!control.isDown(this.playerId)) {
+      this.changeState(FighterState.CROUCH_UP);
+    }
   }
 
   handleCrouchDownState() {
@@ -134,15 +171,6 @@ export class Fighter {
 
   handleCrouchUpState() {
     if (this.animations[this.currentState][this.animationFrame][1] === -2) {
-      this.changeState(FighterState.IDLE);
-    }
-  }
-
-  handleJumpState(time) {
-    this.velocity.y += this.gravity * time.secondsPassed;
-
-    if (this.position.y > STAGE_FLOOR) {
-      this.position.y = STAGE_FLOOR;
       this.changeState(FighterState.IDLE);
     }
   }
@@ -179,6 +207,18 @@ export class Fighter {
   update(time, context) {
     this.position.x += this.velocity.x * this.direction * time.secondsPassed;
     this.position.y += this.velocity.y * time.secondsPassed;
+
+    if (!this.states[this.currentState]) {
+      console.error(`State ${this.currentState} is not defined`);
+      return;
+    }
+
+    if (typeof this.states[this.currentState].update !== "function") {
+      console.error(
+        `Update method for state ${this.currentState} is not a function`
+      );
+      return;
+    }
 
     this.states[this.currentState].update(time, context);
     this.updateAnimation(time);
