@@ -1,3 +1,4 @@
+import { FighterState } from "../../constants/fighters.js";
 import { Fighter } from "./Fighter.js";
 
 export class Ryu extends Fighter {
@@ -6,6 +7,35 @@ export class Ryu extends Fighter {
 
     this.image = document.querySelector('img[alt="ryu"]');
     this.frames = new Map([
+      //待機の画像4枚
+      [
+        "idle-1",
+        [
+          [5, 12, 63, 93],
+          [35, 90],
+        ],
+      ],
+      [
+        "idle-2",
+        [
+          [70, 11, 67, 93],
+          [38, 90],
+        ],
+      ],
+      [
+        "idle-3",
+        [
+          [137, 11, 66, 93],
+          [38, 90],
+        ],
+      ],
+      [
+        "idle-4",
+        [
+          [210, 11, 60, 93],
+          [36, 89],
+        ],
+      ],
       //前進の画像6枚
       [
         "forwards-1",
@@ -92,9 +122,60 @@ export class Ryu extends Fighter {
           [37, 100],
         ],
       ],
+      //上ジャンプ画像6枚
+      [
+        "jump-up-1",
+        [
+          [63, 240, 65, 113],
+          [39, 116],
+        ],
+      ],
+      [
+        "jump-up-2",
+        [
+          [123, 230, 64, 111],
+          [38, 112],
+        ],
+      ],
+      [
+        "jump-up-3",
+        [
+          [191, 228, 63, 96],
+          [38, 112],
+        ],
+      ],
+      [
+        "jump-up-4",
+        [
+          [252, 228, 62, 96],
+          [37, 110],
+        ],
+      ],
+      [
+        "jump-up-5",
+        [
+          [313, 229, 59, 103],
+          [35, 115],
+        ],
+      ],
+      [
+        "jump-up-6",
+        [
+          [568, 239, 68, 115],
+          [39, 122],
+        ],
+      ],
     ]);
     this.animations = {
-      walkForwards: [
+      [FighterState.IDLE]: [
+        "idle-1",
+        "idle-2",
+        "idle-3",
+        "idle-4",
+        "idle-3",
+        "idle-2",
+      ],
+      [FighterState.WALK_FORWARD]: [
         "forwards-1",
         "forwards-2",
         "forwards-3",
@@ -102,7 +183,7 @@ export class Ryu extends Fighter {
         "forwards-5",
         "forwards-6",
       ],
-      walkBackwards: [
+      [FighterState.WALK_BACKWARD]: [
         "backwards-1",
         "backwards-2",
         "backwards-3",
@@ -110,6 +191,17 @@ export class Ryu extends Fighter {
         "backwards-5",
         "backwards-6",
       ],
+      [FighterState.JUMP_UP]: [
+        "jump-up-1",
+        "jump-up-2",
+        "jump-up-3",
+        "jump-up-4",
+        "jump-up-5",
+        "jump-up-6",
+      ],
+    };
+    this.initialVelocity = {
+      jump: -420,
     };
   }
 }

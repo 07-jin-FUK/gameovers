@@ -7,6 +7,35 @@ export class Ken extends Fighter {
 
     this.image = document.querySelector('img[alt="ken"]');
     this.frames = new Map([
+      //待機の画像4枚
+      [
+        "idle-1",
+        [
+          [879, 526, 56, 92],
+          [30, 89],
+        ],
+      ],
+      [
+        "idle-2",
+        [
+          [813, 527, 57, 91],
+          [31, 87],
+        ],
+      ],
+      [
+        "idle-3",
+        [
+          [745, 525, 60, 93],
+          [34, 89],
+        ],
+      ],
+      [
+        "idle-4",
+        [
+          [680, 524, 60, 93],
+          [36, 90],
+        ],
+      ],
       //前進の画像6枚
       [
         "forwards-1",
@@ -93,9 +122,60 @@ export class Ken extends Fighter {
           [31, 92],
         ],
       ],
+      //上ジャンプ画像6枚
+      [
+        "jump-up-1",
+        [
+          [876, 1203, 59, 109],
+          [36, 112],
+        ],
+      ],
+      [
+        "jump-up-2",
+        [
+          [813, 1208, 57, 99],
+          [35, 108],
+        ],
+      ],
+      [
+        "jump-up-3",
+        [
+          [745, 1203, 59, 93],
+          [35, 108],
+        ],
+      ],
+      [
+        "jump-up-4",
+        [
+          [680, 1204, 60, 93],
+          [36, 106],
+        ],
+      ],
+      [
+        "jump-up-5",
+        [
+          [617, 1203, 58, 94],
+          [35, 111],
+        ],
+      ],
+      [
+        "jump-up-6",
+        [
+          [552, 1205, 58, 106],
+          [35, 116],
+        ],
+      ],
     ]);
 
     this.animations = {
+      [FighterState.IDLE]: [
+        "idle-1",
+        "idle-2",
+        "idle-3",
+        "idle-4",
+        "idle-3",
+        "idle-2",
+      ],
       [FighterState.WALK_FORWARD]: [
         "forwards-1",
         "forwards-2",
@@ -112,6 +192,17 @@ export class Ken extends Fighter {
         "backwards-5",
         "backwards-6",
       ],
+      [FighterState.JUMP_UP]: [
+        "jump-up-1",
+        "jump-up-2",
+        "jump-up-3",
+        "jump-up-4",
+        "jump-up-5",
+        "jump-up-6",
+      ],
+    };
+    this.initialVelocity = {
+      jump: -420,
     };
   }
 }
