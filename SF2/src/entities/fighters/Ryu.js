@@ -161,7 +161,7 @@ export class Ryu extends Fighter {
       [
         "jump-up-6",
         [
-          [568, 239, 68, 115],
+          [368, 239, 68, 115],
           [39, 122],
         ],
       ],
@@ -203,6 +203,7 @@ export class Ryu extends Fighter {
     this.initialVelocity = {
       jump: -420,
     };
+    this.gravity = 1000;
   }
 }
 

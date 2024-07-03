@@ -204,6 +204,7 @@ export class Ken extends Fighter {
     this.initialVelocity = {
       jump: -420,
     };
+    this.gravity = 1000;
   }
 }
 

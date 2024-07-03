@@ -1,4 +1,5 @@
 import { FighterState } from "../../constants/fighters.js";
+import { STAGE_FLOOR } from "../../constants/stage.js";
 
 export class Fighter {
   constructor(name, x, y, direction) {
@@ -45,6 +46,7 @@ export class Fighter {
 
   handleWalkIdleInit() {
     this.velocity.x = 0;
+    this.velocity.y = 0;
   }
 
   handleWalkIdleState() {}
@@ -65,7 +67,14 @@ export class Fighter {
     this.velocity.y = this.initialVelocity.jump;
   }
 
-  handleWalkJumpUpState() {}
+  handleWalkJumpUpState(time) {
+    this.velocity.y += this.gravity * time.secondsPassed;
+
+    if (this.position.y > STAGE_FLOOR) {
+      this.position.y = STAGE_FLOOR;
+      this.changeState(FighterState.IDLE);
+    }
+  }
 
   updateStageContraints(context) {
     const WIDTH = 32;
