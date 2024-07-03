@@ -16,18 +16,20 @@ function populateMoveDropdown() {
   });
 }
 
-function handleFormSubmit(event,fighters) {
+function handleFormSubmit(event, fighters) {
   event.preventDefault();
 
-  const selectedCheckboxes = Array.from(event.target.querySelectorAll('input:checked')).map(checkbox => checkbox.value);
+  const selectedCheckboxes = Array.from(
+    event.target.querySelectorAll("input:checked")
+  ).map((checkbox) => checkbox.value);
 
-  const options = event.target.querySelector('select');
+  const options = event.target.querySelector("select");
 
-  fighters.forEach(fighter => {
-    if (selectedCheckboxes.includes(fighter.name)){
+  fighters.forEach((fighter) => {
+    if (selectedCheckboxes.includes(fighter.name)) {
       fighter.changeState(options.value);
     }
-  })
+  });
 }
 
 const GameViewport = {
@@ -71,7 +73,9 @@ window.addEventListener("load", function () {
     }
   }
 
-  this.document.addEventListener('submit', (event) => handleFormSubmit(event, fighters));
+  this.document.addEventListener("submit", (event) =>
+    handleFormSubmit(event, fighters)
+  );
 
   window.requestAnimationFrame(frame);
 });

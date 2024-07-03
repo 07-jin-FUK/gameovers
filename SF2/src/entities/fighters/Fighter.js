@@ -89,12 +89,19 @@ export class Fighter {
   }
 
   updateAnimation(time) {
-    if (time.previous > this.animationTimer + 60) {
+    const animation = this.animations[this.currentState];
+    const [, frameDelay] = animation[this.animationFrame];
+
+    if (time.previous > this.animationTimer + frameDelay) {
       this.animationTimer = time.previous;
 
-      this.animationFrame++;
-      if (this.animationFrame >= this.animations[this.currentState].length)
+      if (frameDelay > 0) {
+        this.animationFrame++;
+      }
+
+      if (this.animationFrame >= animation.length) {
         this.animationFrame = 0;
+      }
     }
   }
 
@@ -120,9 +127,17 @@ export class Fighter {
   }
 
   draw(context) {
-    const [[x, y, width, height], [originX, originY]] = this.frames.get(
-      this.animations[this.currentState][this.animationFrame]
-    );
+    const [frameKey] = this.animations[this.currentState][this.animationFrame];
+    //ここから追加
+    const frame = this.frames.get(frameKey);
+
+    if (!frame) {
+      console.error(`Frame not found for key: ${frameKey}`);
+      return;
+    }
+    //ここまで
+    const [[x, y, width, height], [originX, originY]] = frame;
+
     context.scale(this.direction, 1);
     context.drawImage(
       this.image,
