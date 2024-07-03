@@ -1,6 +1,7 @@
 import { Ken } from "./entities/fighters/Ken.js";
 import { Stage } from "./entities/Stage.js";
 import { Ryu } from "./entities/fighters/Ryu.js";
+import { FpsCounter } from "./entities/FpsCounter.js";
 // const GameViewport = {
 //     WIDTH: 384,
 //     HEIGHT: 224,
@@ -32,18 +33,27 @@ window.onload = function () {
   canvasEl.width = GameViewport.WIDTH;
   canvasEl.height = GameViewport.HEIGHT;
 
-  const ken = new Ken(80, 110, 1);
-  const ryu = new Ryu(80, 110, -1);
-  const stage = new Stage();
+  const entities = [
+    new Stage(),
+    new Ken(80, 110, 150),
+    new Ryu(80, 110, -150),
+    new FpsCounter(),
+  ];
 
-  function frame() {
-    ken.update(context);
-    ryu.update(context);
+  let previousTime = 0;
+  let secondsPassed = 0;
 
-    stage.draw(context);
-    ken.draw(context);
-    ryu.draw(context);
+  function frame(time) {
+    secondsPassed = (time - previousTime) / 1000;
+    previousTime = time;
 
+    for (const entity of entities) {
+      entity.update(secondsPassed, context);
+    }
+
+    for (const entity of entities) {
+      entity.draw(context);
+    }
     window.requestAnimationFrame(frame);
   }
   window.requestAnimationFrame(frame);

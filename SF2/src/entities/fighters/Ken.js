@@ -5,6 +5,14 @@ export class Ken extends Fighter {
     super("Ken", x, y, velocity);
 
     this.image = document.querySelector('img[alt="ken"]');
+    this.frames = new Map([
+      ["forwards-1", [875, 523, 61, 95]],
+      ["forwards-2", [873, 895, 63, 95]],
+      ["forwards-3", [792, 895, 78, 95]],
+      ["forwards-4", [711, 895, 78, 95]],
+      ["forwards-5", [630, 895, 78, 95]],
+      ["forwards-6", [565, 895, 63, 95]],
+    ]);
   }
 }
 
