@@ -7,19 +7,19 @@ export class Ryu extends Fighter {
     this.image = document.querySelector('img[alt="ryu"]');
     this.frames = new Map([
       //前進の画像6枚
-      ["forwards-1", [1677, 10, 66, 100]],
-      ["forwards-2", [1681, 129, 65, 94]],
-      ["forwards-3", [1605, 127, 72, 95]],
-      ["forwards-4", [1525, 124, 72, 94]],
-      ["forwards-5", [1450, 126, 72, 94]],
-      ["forwards-6", [1380, 125, 67, 96]],
+      ["forwards-1", [10, 132, 60, 90]],
+      ["forwards-2", [75, 125, 68, 101]],
+      ["forwards-3", [149, 124, 70, 99]],
+      ["forwards-4", [225, 125, 70, 100]],
+      ["forwards-5", [299, 124, 63, 99]],
+      ["forwards-6", [363, 122, 62, 102]],
       //後退の画像6枚
-      ["backwards-1", [905, 123, 69, 94]],
-      ["backwards-2", [979, 119, 70, 99]],
-      ["backwards-3", [1056, 122, 66, 96]],
-      ["backwards-4", [1127, 118, 64, 100]],
-      ["backwards-5", [1194, 120, 60, 96]],
-      ["backwards-6", [1255, 118, 64, 99]],
+      ["backwards-1", [772, 123, 74, 96]],
+      ["backwards-2", [703, 121, 65, 99]],
+      ["backwards-3", [626, 121, 68, 99]],
+      ["backwards-4", [556, 119, 67, 104]],
+      ["backwards-5", [492, 116, 64, 102]],
+      ["backwards-6", [427, 120, 65, 102]],
     ]);
     this.animations = {
       walkForwards: [

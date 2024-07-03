@@ -12,7 +12,9 @@ export class Fighter {
   }
 
   update(time, context) {
-    const [, , width] = this.frames.get(this.animations[this.state][this.animationFrame]);
+    const [, , width] = this.frames.get(
+      this.animations[this.state][this.animationFrame]
+    );
 
     if (time.previous > this.animationTimer + 60) {
       this.animationTimer = time.previous;
@@ -23,8 +25,14 @@ export class Fighter {
 
     this.position.x += this.velocity * time.secondsPassed;
 
-    if (this.position.x > context.canvas.width - width || this.position.x < 0) {
-      this.velocity = -this.velocity;
+    if (this.position.x > context.canvas.width - width) {
+      this.velocity = -150;
+      this.state = "walkBackwards";
+    }
+
+    if (this.position.x < 0) {
+      this.velocity = 150;
+      this.state = "walkForwards";
     }
   }
 
