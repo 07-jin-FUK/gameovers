@@ -1,3 +1,4 @@
+import { FighterState } from "../../constants/fighters.js";
 import { Fighter } from "./Fighter.js";
 
 export class Ken extends Fighter {
@@ -7,23 +8,95 @@ export class Ken extends Fighter {
     this.image = document.querySelector('img[alt="ken"]');
     this.frames = new Map([
       //前進の画像6枚
-      ["forwards-1", [875, 523, 61, 95]],
-      ["forwards-2", [874, 895, 62, 95]],
-      ["forwards-3", [793, 895, 77, 95]],
-      ["forwards-4", [712, 895, 77, 95]],
-      ["forwards-5", [631, 895, 77, 95]],
-      ["forwards-6", [566, 895, 62, 95]],
+      [
+        "forwards-1",
+        [
+          [875, 523, 60, 95],
+          [30, 93],
+        ],
+      ],
+      [
+        "forwards-2",
+        [
+          [874, 895, 61, 95],
+          [31, 93],
+        ],
+      ],
+      [
+        "forwards-3",
+        [
+          [793, 895, 76, 95],
+          [35, 92],
+        ],
+      ],
+      [
+        "forwards-4",
+        [
+          [712, 895, 76, 95],
+          [34, 93],
+        ],
+      ],
+      [
+        "forwards-5",
+        [
+          [631, 895, 76, 95],
+          [35, 93],
+        ],
+      ],
+      [
+        "forwards-6",
+        [
+          [566, 895, 62, 95],
+          [35, 93],
+        ],
+      ],
       //後退の画像6枚
-      ["backwards-1", [874, 993, 61, 94]],
-      ["backwards-2", [809, 993, 61, 95]],
-      ["backwards-3", [743, 992, 63, 95]],
-      ["backwards-4", [676, 995, 62, 92]],
-      ["backwards-5", [597, 993, 62, 95]],
-      ["backwards-6", [532, 993, 62, 94]],
+      [
+        "backwards-1",
+        [
+          [873, 993, 56, 94],
+          [30, 92],
+        ],
+      ],
+      [
+        "backwards-2",
+        [
+          [809, 993, 56, 95],
+          [31, 93],
+        ],
+      ],
+      [
+        "backwards-3",
+        [
+          [743, 992, 56, 95],
+          [30, 93],
+        ],
+      ],
+      [
+        "backwards-4",
+        [
+          [676, 995, 56, 92],
+          [31, 90],
+        ],
+      ],
+      [
+        "backwards-5",
+        [
+          [597, 993, 56, 95],
+          [31, 93],
+        ],
+      ],
+      [
+        "backwards-6",
+        [
+          [532, 993, 56, 94],
+          [31, 92],
+        ],
+      ],
     ]);
 
     this.animations = {
-      walkForwards: [
+      [FighterState.WALK_FORWARD]: [
         "forwards-1",
         "forwards-2",
         "forwards-3",
@@ -31,7 +104,7 @@ export class Ken extends Fighter {
         "forwards-5",
         "forwards-6",
       ],
-      walkBackwards: [
+      [FighterState.WALK_BACKWARD]: [
         "backwards-1",
         "backwards-2",
         "backwards-3",
