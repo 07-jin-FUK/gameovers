@@ -165,6 +165,56 @@ export class Ryu extends Fighter {
           [39, 122],
         ],
       ],
+      //前後ジャンプ7枚
+      [
+        "jump-roll-1",
+        [
+          [440, 254, 63, 91],
+          [36, 94],
+        ],
+      ],
+      [
+        "jump-roll-2",
+        [
+          [504, 249, 109, 68],
+          [45, 90],
+        ],
+      ],
+      [
+        "jump-roll-3",
+        [
+          [612, 236, 63, 96],
+          [38, 76],
+        ],
+      ],
+      [
+        "jump-roll-4",
+        [
+          [675, 244, 125, 72],
+          [47, 111],
+        ],
+      ],
+      [
+        "jump-roll-5",
+        [
+          [800, 253, 79, 106],
+          [72, 82],
+        ],
+      ],
+      [
+        "jump-roll-6",
+        [
+          [877, 255, 67, 121],
+          [56, 100],
+        ],
+      ],
+      [
+        "jump-roll-7",
+        [
+          [63, 240, 66, 112],
+          [32, 110],
+        ],
+      ],
     ]);
     this.animations = {
       [FighterState.IDLE]: [
@@ -199,8 +249,32 @@ export class Ryu extends Fighter {
         ["jump-up-5", 100],
         ["jump-up-6", -1],
       ],
+      [FighterState.JUMP_FORWARD]: [
+        ["jump-roll-1", 200],
+        ["jump-roll-2", 50],
+        ["jump-roll-3", 50],
+        ["jump-roll-4", 50],
+        ["jump-roll-5", 50],
+        ["jump-roll-6", 50],
+        ["jump-roll-7", 0],
+      ],
+      [FighterState.JUMP_BACKWARD]: [
+        ["jump-roll-7", 200],
+        ["jump-roll-6", 50],
+        ["jump-roll-5", 50],
+        ["jump-roll-4", 50],
+        ["jump-roll-3", 50],
+        ["jump-roll-2", 50],
+        ["jump-roll-1", 0],
+      ],
     };
     this.initialVelocity = {
+      x: {
+        [FighterState.WALK_FORWARD]: 200,
+        [FighterState.WALK_BACKWARD]: -150,
+        [FighterState.JUMP_FORWARD]: 170,
+        [FighterState.JUMP_BACKWARD]: -200,
+      },
       jump: -420,
     };
     this.gravity = 1000;

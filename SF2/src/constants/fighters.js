@@ -6,6 +6,8 @@ export const FighterDirection = {
 export const FighterState = {
   IDLE: "idle",
   WALK_FORWARD: "walkForwards",
-    WALK_BACKWARD: "walkBackwards",
-  JUMP_UP:"jumpUp",
+  WALK_BACKWARD: "walkBackwards",
+  JUMP_UP: "jumpUp",
+  JUMP_FORWARD: "jumpForwards",
+  JUMP_BACKWARD: "jumpBackwards",
 };

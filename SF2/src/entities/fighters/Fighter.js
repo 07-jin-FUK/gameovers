@@ -20,24 +20,52 @@ export class Fighter {
       [FighterState.IDLE]: {
         init: this.handleWalkIdleInit.bind(this),
         update: this.handleWalkIdleState.bind(this),
+        validForm: [
+          FighterState.IDLE,
+          FighterState.WALK_FORWARD,
+          FighterState.WALK_BACKWARD,
+          FighterState.JUMP_UP,
+          FighterState.JUMP_FORWARD,
+          FighterState.JUMP_BACKWARD,
+        ],
       },
       [FighterState.WALK_FORWARD]: {
-        init: this.handleWalkForwardInit.bind(this),
-        update: this.handleWalkForwardState.bind(this),
+        init: this.handleMoveInit.bind(this),
+        update: this.handleMoveState.bind(this),
+        validForm: [FighterState.IDLE, FighterState.JUMP_BACKWARD],
       },
       [FighterState.WALK_BACKWARD]: {
-        init: this.handleWalkBackwardInit.bind(this),
-        update: this.handleWalkBackwardState.bind(this),
+        init: this.handleMoveInit.bind(this),
+        update: this.handleMoveState.bind(this),
+        validForm: [FighterState.IDLE, FighterState.WALK_FORWARD],
       },
       [FighterState.JUMP_UP]: {
-        init: this.handleWalkJumpUpInit.bind(this),
-        update: this.handleWalkJumpUpState.bind(this),
+        init: this.handleJumpInit.bind(this),
+        update: this.handleJumpState.bind(this),
+        validForm: [FighterState.IDLE],
+      },
+      [FighterState.JUMP_FORWARD]: {
+        init: this.handleJumpInit.bind(this),
+        update: this.handleJumpState.bind(this),
+        validForm: [FighterState.IDLE, FighterState.WALK_FORWARD],
+      },
+      [FighterState.JUMP_BACKWARD]: {
+        init: this.handleJumpInit.bind(this),
+        update: this.handleJumpState.bind(this),
+        validForm: [FighterState.IDLE, FighterState.WALK_BACKWARD],
       },
     };
+    this.currentState = FighterState.IDLE;
     this.changeState(FighterState.IDLE);
   }
 
   changeState(newState) {
+    //同じ状態は２回入力できないように設定
+    if (
+      newState === this.currentState ||
+      !this.states[newState].validForm.includes(this.currentState)
+    )
+      return;
     this.currentState = newState;
     this.animationFrame = 0;
 
@@ -51,23 +79,25 @@ export class Fighter {
 
   handleWalkIdleState() {}
 
-  handleWalkForwardInit() {
-    this.velocity.x = 150 * this.direction;
+  handleMoveInit() {
+    // "??"=>左側の値がnull,undefinedの場合、右の値を返す。
+    this.velocity.x = this.initialVelocity.x[this.currentState] ?? 0;
   }
 
-  handleWalkForwardState() {}
+  handleMoveState() {}
 
-  handleWalkBackwardInit() {
-    this.velocity.x = -150 * this.direction;
-  }
+  // handleWalkBackwardInit() {
+  //   this.velocity.x = -150 * this.direction;
+  // }
 
-  handleWalkBackwardState() {}
+  // handleWalkBackwardState() {}
 
-  handleWalkJumpUpInit() {
+  handleJumpInit() {
     this.velocity.y = this.initialVelocity.jump;
+    this.handleMoveInit();
   }
 
-  handleWalkJumpUpState(time) {
+  handleJumpState(time) {
     this.velocity.y += this.gravity * time.secondsPassed;
 
     if (this.position.y > STAGE_FLOOR) {
@@ -106,7 +136,21 @@ export class Fighter {
   }
 
   update(time, context) {
-    this.position.x += this.velocity.x * time.secondsPassed;
+    console.log(`Current State: ${this.currentState}`);
+    console.log(`State Object:`, this.states[this.currentState]);
+
+    if (!this.states[this.currentState]) {
+      console.error(`State ${this.currentState} is not defined`);
+      return;
+    }
+
+    if (typeof this.states[this.currentState].update !== "function") {
+      console.error(
+        `Update method for state ${this.currentState} is not a function`
+      );
+      return;
+    }
+    this.position.x += this.velocity.x * this.direction * time.secondsPassed;
     this.position.y += this.velocity.y * time.secondsPassed;
 
     this.states[this.currentState].update(time, context);
