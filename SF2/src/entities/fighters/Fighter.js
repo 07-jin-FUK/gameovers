@@ -18,8 +18,8 @@ export class Fighter {
 
     this.states = {
       [FighterState.IDLE]: {
-        init: this.handleWalkIdleInit.bind(this),
-        update: this.handleWalkIdleState.bind(this),
+        init: this.handleIdleInit.bind(this),
+        update: () => {},
         validForm: [
           FighterState.IDLE,
           FighterState.WALK_FORWARD,
@@ -27,16 +27,17 @@ export class Fighter {
           FighterState.JUMP_UP,
           FighterState.JUMP_FORWARD,
           FighterState.JUMP_BACKWARD,
+          FighterState.CROUCH_UP,
         ],
       },
       [FighterState.WALK_FORWARD]: {
         init: this.handleMoveInit.bind(this),
-        update: this.handleMoveState.bind(this),
+        update: () => {},
         validForm: [FighterState.IDLE, FighterState.JUMP_BACKWARD],
       },
       [FighterState.WALK_BACKWARD]: {
         init: this.handleMoveInit.bind(this),
-        update: this.handleMoveState.bind(this),
+        update: () => {},
         validForm: [FighterState.IDLE, FighterState.WALK_FORWARD],
       },
       [FighterState.JUMP_UP]: {
@@ -53,6 +54,26 @@ export class Fighter {
         init: this.handleJumpInit.bind(this),
         update: this.handleJumpState.bind(this),
         validForm: [FighterState.IDLE, FighterState.WALK_BACKWARD],
+      },
+      [FighterState.CROUCH]: {
+        init: () => {},
+        update: () => {},
+        validForm: [FighterState.CROUCH_DOWN],
+      },
+
+      [FighterState.CROUCH_DOWN]: {
+        init: () => {},
+        update: this.handleCrouchDownState.bind(this),
+        validForm: [
+          FighterState.IDLE,
+          FighterState.WALK_FORWARD,
+          FighterState.WALK_BACKWARD,
+        ],
+      },
+      [FighterState.CROUCH_UP]: {
+        init: () => {},
+        update: this.handleCrouchUpState.bind(this),
+        validForm: [FighterState.CROUCH],
       },
     };
     this.currentState = FighterState.IDLE;
@@ -72,19 +93,15 @@ export class Fighter {
     this.states[this.currentState].init();
   }
 
-  handleWalkIdleInit() {
+  handleIdleInit() {
     this.velocity.x = 0;
     this.velocity.y = 0;
   }
-
-  handleWalkIdleState() {}
 
   handleMoveInit() {
     // "??"=>左側の値がnull,undefinedの場合、右の値を返す。
     this.velocity.x = this.initialVelocity.x[this.currentState] ?? 0;
   }
-
-  handleMoveState() {}
 
   // handleWalkBackwardInit() {
   //   this.velocity.x = -150 * this.direction;
@@ -95,6 +112,18 @@ export class Fighter {
   handleJumpInit() {
     this.velocity.y = this.initialVelocity.jump;
     this.handleMoveInit();
+  }
+
+  handleCrouchDownState() {
+    if (this.animations[this.currentState][this.animationFrame][1] === -2) {
+      this.changeState(FighterState.CROUCH);
+    }
+   }
+  
+  handleCrouchUpState() {
+    if (this.animations[this.currentState][this.animationFrame][1] === -2) {
+      this.changeState(FighterState.IDLE);
+    }
   }
 
   handleJumpState(time) {

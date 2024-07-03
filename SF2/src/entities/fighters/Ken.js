@@ -215,6 +215,10 @@ export class Ken extends Fighter {
           [34, 110],
         ],
       ],
+      //しゃがみ画像3枚
+      ['crouch-1',[[875,736,58,92],[25,95]]],
+      ['crouch-2',[[794,751,76,77],[28,74]]],
+      ['crouch-3',[[717,767,72,61],[28,58]]],
     ]);
 
     this.animations = {
@@ -268,13 +272,26 @@ export class Ken extends Fighter {
         ["jump-roll-2", 50],
         ["jump-roll-1", 0],
       ],
+      [FighterState.CROUCH]: [["crouch-3", 0]],
+      [FighterState.CROUCH_DOWN]: [
+        ["crouch-1", 30],
+        ["crouch-2", 30],
+        ["crouch-3", 30],
+        ["crouch-3", -2],
+      ],
+      [FighterState.CROUCH_UP]: [
+        ["crouch-3", 30],
+        ["crouch-2", 30],
+        ["crouch-1", 30],
+        ["crouch-1", -2],
+      ],
     };
     this.initialVelocity = {
       x: {
-        [FighterState.WALK_FORWARD]:200,
-        [FighterState.WALK_BACKWARD]:-150,
-        [FighterState.JUMP_FORWARD]:170,
-        [FighterState.JUMP_BACKWARD]:-200,
+        [FighterState.WALK_FORWARD]: 200,
+        [FighterState.WALK_BACKWARD]: -150,
+        [FighterState.JUMP_FORWARD]: 170,
+        [FighterState.JUMP_BACKWARD]: -200,
       },
       jump: -420,
     };
