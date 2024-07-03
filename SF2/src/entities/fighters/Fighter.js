@@ -1,5 +1,5 @@
 import * as control from "../../InputHandler.js";
-import { FighterState } from "../../constants/fighters.js";
+import { FighterDirection, FighterState } from "../../constants/fighters.js";
 import { STAGE_FLOOR } from "../../constants/stage.js";
 
 export class Fighter {
@@ -17,6 +17,8 @@ export class Fighter {
     this.animationFrame = 0;
     this.animationTimer = 0;
     this.animations = {};
+
+    this.opponent;
 
     this.states = {
       [FighterState.IDLE]: {
@@ -82,6 +84,12 @@ export class Fighter {
     this.changeState(FighterState.IDLE);
   }
 
+  //キャラクターが常に向かい合うように、振り向かせる関数
+  getDirection = () =>
+    this.position.x >= this.opponent.position.x
+      ? FighterDirection.LEFT
+      : FighterDirection.RIGHT;
+
   changeState(newState) {
     //同じ状態は２回入力できないように設定
     if (
@@ -104,12 +112,6 @@ export class Fighter {
     // "??"=>左側の値がnull,undefinedの場合、右の値を返す。
     this.velocity.x = this.initialVelocity.x[this.currentState] ?? 0;
   }
-
-  // handleWalkBackwardInit() {
-  //   this.velocity.x = -150 * this.direction;
-  // }
-
-  // handleWalkBackwardState() {}
 
   handleJumpInit() {
     this.velocity.y = this.initialVelocity.jump;
@@ -208,17 +210,7 @@ export class Fighter {
     this.position.x += this.velocity.x * this.direction * time.secondsPassed;
     this.position.y += this.velocity.y * time.secondsPassed;
 
-    if (!this.states[this.currentState]) {
-      console.error(`State ${this.currentState} is not defined`);
-      return;
-    }
-
-    if (typeof this.states[this.currentState].update !== "function") {
-      console.error(
-        `Update method for state ${this.currentState} is not a function`
-      );
-      return;
-    }
+    this.direction = this.getDirection();
 
     this.states[this.currentState].update(time, context);
     this.updateAnimation(time);
