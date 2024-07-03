@@ -5,18 +5,20 @@ export class Fighter {
     this.frames = new Map();
     this.position = { x, y };
     this.velocity = velocity;
-    this.animationFrame = 1;
+    this.animationFrame = 0;
     this.animationTimer = 0;
+    this.state = "walkForwards";
+    this.animations = {};
   }
 
   update(time, context) {
-    const [, , width] = this.frames.get(`forwards-${this.animationFrame}`);
+    const [, , width] = this.frames.get(this.animations[this.state][this.animationFrame]);
 
     if (time.previous > this.animationTimer + 60) {
       this.animationTimer = time.previous;
 
       this.animationFrame++;
-      if (this.animationFrame > 6) this.animationFrame = 1;
+      if (this.animationFrame > 5) this.animationFrame = 0;
     }
 
     this.position.x += this.velocity * time.secondsPassed;
@@ -26,9 +28,21 @@ export class Fighter {
     }
   }
 
+  drawDebug(context) {
+    context.lineWidth = 1;
+
+    context.beginPath();
+    context.strokeStyle = "white";
+    context.moveTo(this.position.x - 5, this.position.y);
+    context.lineTo(this.position.x + 4, this.position.y);
+    context.moveTo(this.position.x, this.position.y - 5);
+    context.lineTo(this.position.x, this.position.y + 4);
+    context.stroke();
+  }
+
   draw(context) {
     const [x, y, width, height] = this.frames.get(
-      `forwards-${this.animationFrame}`
+      this.animations[this.state][this.animationFrame]
     );
     context.drawImage(
       this.image,
@@ -41,5 +55,7 @@ export class Fighter {
       width,
       height
     );
+
+    this.drawDebug(context);
   }
 }
