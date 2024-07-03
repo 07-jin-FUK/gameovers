@@ -6,15 +6,20 @@ export class Fighter {
     this.position = { x, y };
     this.velocity = velocity;
     this.animationFrame = 1;
+    this.animationTimer = 0;
   }
 
-  update(secondsPassed, context) {
+  update(time, context) {
     const [, , width] = this.frames.get(`forwards-${this.animationFrame}`);
 
-    this.animationFrame++;
-    if (this.animationFrame > 6) this.animationFrame = 1;
+    if (time.previous > this.animationTimer + 60) {
+      this.animationTimer = time.previous;
 
-    this.position.x += this.velocity * secondsPassed;
+      this.animationFrame++;
+      if (this.animationFrame > 6) this.animationFrame = 1;
+    }
+
+    this.position.x += this.velocity * time.secondsPassed;
 
     if (this.position.x > context.canvas.width - width || this.position.x < 0) {
       this.velocity = -this.velocity;

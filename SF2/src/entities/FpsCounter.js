@@ -2,8 +2,8 @@ export class FpsCounter {
   constructor() {
     this.fps = 0;
   }
-  update(secondsPassed) {
-    this.fps = Math.trunc(1 / secondsPassed);
+  update(time) {
+    this.fps = Math.trunc(1 / time.secondsPassed);
   }
 
   draw(context) {
