@@ -1,5 +1,8 @@
 import { StreetFighterGame } from "./StreetFighterGame.js";
 
-window.addEventListener("load", function () {
-  new StreetFighterGame().start();
+const game = new StreetFighterGame();
+
+window.addEventListener("click", () => {
+  game.playBGM();
+  game.start();
 });
